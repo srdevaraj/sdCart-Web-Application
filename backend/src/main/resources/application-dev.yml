@@ -1,0 +1,21 @@
+# Development profile — enabled by default (SPRING_PROFILES_ACTIVE=dev)
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    validate-on-migrate: true
+
+logging:
+  level:
+    com.sdcart: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+app:
+  admin:
+    # Convenience defaults for local development only.
+    email: ${ADMIN_EMAIL:admin@sdcart.com}
+    password: ${ADMIN_PASSWORD:password}

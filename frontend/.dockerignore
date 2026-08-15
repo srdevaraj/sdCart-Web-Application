@@ -1,0 +1,26 @@
+# Dependencies / build output
+node_modules/
+dist/
+coverage/
+
+# Version control
+.git/
+.gitignore
+
+# Environment / secrets — the .env file is LOCAL ONLY. The API URL is injected
+# via the VITE_API_BASE_URL build arg, so the local .env must never reach the
+# build (a stray VITE_API_BASE_URL here would silently override it).
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

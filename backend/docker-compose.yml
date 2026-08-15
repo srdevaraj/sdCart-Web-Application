@@ -1,0 +1,48 @@
+# ============================================================================
+# sdCart — local development stack (PostgreSQL + backend)
+# Usage:  docker compose up --build
+# Environment values come from the local .env file if present (see .env.example)
+# ============================================================================
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sdcart-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sdcart
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - sdcart_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sdcart"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: sdcart-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SERVER_PORT: 8080
+      DATABASE_URL: jdbc:postgresql://db:5432/sdcart
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-password}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-in-production-0123456789abcdef}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-900000}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@sdcart.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password}
+    ports:
+      - "8080:8080"
+
+volumes:
+  sdcart_pgdata:

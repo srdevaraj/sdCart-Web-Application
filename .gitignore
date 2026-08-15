@@ -1,0 +1,47 @@
+# ============================================================================
+# sdCart — root .gitignore
+# Environment templates (.env.example) are intentionally NOT ignored.
+# ============================================================================
+
+# Environment / secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+
+# Backend build output
+backend/target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Frontend dependencies / build output
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/coverage/
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
+
+# Test / tooling
+*.dump

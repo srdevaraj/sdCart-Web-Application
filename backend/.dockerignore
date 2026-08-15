@@ -1,0 +1,31 @@
+# Build output
+target/
+*.class
+*.jar
+
+# Version control
+.git/
+.gitignore
+
+# Environment / secrets — never copy into the image
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local-only files
+docker-compose.yml
+README.md

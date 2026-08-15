@@ -1,0 +1,44 @@
+# Production profile — activate with SPRING_PROFILES_ACTIVE=prod
+# All secrets must come from the environment; no defaults are provided here.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    validate-on-migrate: true
+    clean-disabled: true
+    # Production adds its own migration set on top of the shared base.
+    # (Sibling directory on purpose: Flyway scans locations recursively, so
+    # prod-only files must live OUTSIDE db/migration to avoid being picked up
+    # by the dev profile too.)
+    locations: classpath:db/migration,classpath:db/prod-migrations
+  datasource:
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: 5
+
+server:
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain
+    min-response-size: 1024
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    root: INFO
+    com.sdcart: INFO
+
+app:
+  admin:
+    # No default password in production. The admin user is only bootstrapped
+    # when ADMIN_PASSWORD is explicitly provided via the environment.
+    email: ${ADMIN_EMAIL:admin@sdcart.com}
+    password: ${ADMIN_PASSWORD:}
