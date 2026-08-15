@@ -1,0 +1,127 @@
+# ============================================================================
+# sdCart — FREE / DEMO Render Blueprint (render-free.yaml)
+#
+# TEMPORARY free-tier deployment for testing / portfolio / demo use only.
+# The production configuration lives in render.yaml (paid Starter web
+# services) and is UNCHANGED — switch back to it any time (see below).
+#
+# This file deploys the SAME application code, Dockerfiles, database setup
+# (PostgreSQL 16 + Flyway), JWT auth, Spring Security, rate limiting,
+# security headers and health checks as production. No application code is
+# modified, duplicated or weakened; only deployment plans and service names
+# differ so the demo stack never collides with the future paid stack.
+#
+# Deploy: Render Dashboard → New → Blueprint → select the repository →
+#         set "Blueprint file" to render-free.yaml (Render supports custom
+#         blueprint filenames since Feb 2026).
+#
+# FREE-TIER REALITY (verified against Render docs, July 2026):
+#   - Free web services SPIN DOWN after 15 min without traffic; the first
+#     request after a spin-down triggers a cold start (~1 min wake-up).
+#   - Free instances: 512 MB RAM / 0.1 CPU. Two free web services share the
+#     workspace's 750 free instance hours/month (they sleep when idle, so a
+#     demo with occasional traffic fits; always-on 24/7 does not).
+#   - 5 GB/month bandwidth on the free Hobby workspace (Apr 2026 plan change).
+#   - Free Postgres: 1 GB storage, EXPIRES 30 days after creation (+14-day
+#     grace), no automated backups. Demo data is ephemeral by design.
+#   - Free services cannot send SMTP email (app default EMAIL_PROVIDER=console
+#     is used; SMTP is only relevant on a paid deployment anyway).
+#   - No custom domains on free (Hobby allows 2/month; onrender.com URLs are
+#     fine for a demo).
+# ============================================================================
+
+databases:
+  - name: sdcart-demo-db
+    plan: free            # free Postgres: 1 GB, expires after 30 days
+    region: oregon
+    databaseName: sdcart
+    postgresMajorVersion: 16
+
+services:
+  # --------------------------------------------------------------------------
+  # Spring Boot backend (Java 21, Docker, prod profile) — FREE plan
+  # --------------------------------------------------------------------------
+  - type: web
+    name: sdcart-demo-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Database — individual properties let the app compose the JDBC URL
+      # (see application.yml: DB_HOST/DB_PORT/DB_NAME/DATABASE_USERNAME/DATABASE_PASSWORD).
+      - key: DB_HOST
+        fromDatabase:
+          name: sdcart-demo-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: sdcart-demo-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: sdcart-demo-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: sdcart-demo-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: sdcart-demo-db
+          property: password
+      # JWT — generated once by Render; sync:false keeps it stable across
+      # syncs. The generated secret is strong and never stored in Git.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRATION
+        value: "900000"
+      - key: JWT_REFRESH_EXPIRATION
+        value: "604800000"
+      # CORS — restricted to the deployed demo frontend origin (no wildcard).
+      # If Render assigns a different URL than the one below, update this to
+      # the ACTUAL https URL shown on the sdcart-demo-frontend service page.
+      - key: FRONTEND_URL
+        value: https://sdcart-demo-frontend.onrender.com
+      # Free-tier resource tuning ONLY (not in the paid render.yaml): cap the
+      # Hikari pool on the 512 MB free instance. Connection pooling still
+      # works; this just avoids holding 20 connections open on a tiny box.
+      # Remove when moving back to render.yaml (paid plans keep the prod
+      # default of 20).
+      - key: DB_POOL_MAX_SIZE
+        value: "5"
+      # Admin bootstrap — set ADMIN_PASSWORD in the Dashboard; while empty no
+      # admin account is created in production (fail safe, same as render.yaml).
+      - key: ADMIN_EMAIL
+        value: admin@sdcart.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Optional integrations (Cloudinary, Stripe, SMTP) are NOT enabled on
+      # the free demo. Their env vars are declared in render.yaml for the
+      # paid deployment — add them here in the Dashboard only if needed.
+
+  # --------------------------------------------------------------------------
+  # React frontend (Vite + Nginx, Docker) — FREE plan
+  # --------------------------------------------------------------------------
+  - type: web
+    name: sdcart-demo-frontend
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: frontend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    envVars:
+      # Injected as a Docker build arg (Render exposes service env vars to the
+      # build). The browser calls the backend directly; CORS is allowed via
+      # the backend's FRONTEND_URL above. If Render assigns a different
+      # backend URL than below, update this to the ACTUAL https URL shown on
+      # the sdcart-demo-backend service page and redeploy the frontend.
+      - key: VITE_API_BASE_URL
+        value: https://sdcart-demo-backend.onrender.com

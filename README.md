@@ -201,6 +201,22 @@ Post-deploy checklist:
 render blueprints validate   # validate render.yaml with the Render CLI
 ```
 
+### Temporary free/demo deployment (`render-free.yaml`)
+
+For **testing or portfolio/demo use at $0/month**, a second blueprint
+(`render-free.yaml`) deploys the **same application** (same Dockerfiles, same
+PostgreSQL/Flyway setup, same JWT/Spring Security protections, same health
+checks) on Render's **free plans** — backend and frontend become free web
+services (512 MB RAM / 0.1 CPU, spin down after 15 min idle) and the database
+stays on the free Postgres plan (1 GB, **expires after 30 days**, no backups).
+
+- `render.yaml` (paid Starter web services) is **unchanged** — the future
+  production deployment.
+- Deploy: **New → Blueprint → select the repo → set Blueprint file to
+  `render-free.yaml`** (custom blueprint filenames supported since Feb 2026).
+- Full runbook, env-var checklist, limitations and the switch-back procedure:
+  [`docs/free-deployment.md`](docs/free-deployment.md).
+
 ## Backup & recovery
 
 Production PostgreSQL backup strategy, restore procedure, migration
