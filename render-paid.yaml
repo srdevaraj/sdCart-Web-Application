@@ -1,0 +1,118 @@
+# ============================================================================
+# sdCart — Render Blueprint (infrastructure as code)
+#
+# Deploy: push this repo to GitHub → Render Dashboard → New → Blueprint →
+#         select the repository. Render provisions:
+#
+#   Render PostgreSQL (sdcart-db)  ──►  sdcart-backend  ──►  sdcart-frontend
+#
+# Production credentials are wired from the database and generated secrets —
+# never postgres/password, never the dev JWT secret.
+#
+# Validate locally (Render CLI):  render blueprints validate
+# ============================================================================
+
+databases:
+  - name: sdcart-db
+    plan: free            # upgrade to starter/basic for a real production workload
+    region: oregon
+    databaseName: sdcart
+    postgresMajorVersion: 16
+
+services:
+  # --------------------------------------------------------------------------
+  # Spring Boot backend (Java 21, Docker, prod profile)
+  # --------------------------------------------------------------------------
+  - type: web
+    name: sdcart-backend
+    runtime: docker
+    plan: starter
+    region: oregon
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Database — individual properties let the app compose the JDBC URL
+      # (see application.yml: DB_HOST/DB_PORT/DB_NAME/DATABASE_USERNAME/DATABASE_PASSWORD).
+      - key: DB_HOST
+        fromDatabase:
+          name: sdcart-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: sdcart-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: sdcart-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: sdcart-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: sdcart-db
+          property: password
+      # JWT — generated once by Render; sync:false keeps it stable across syncs.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRATION
+        value: "900000"
+      - key: JWT_REFRESH_EXPIRATION
+        value: "604800000"
+      # CORS — restricted to the deployed frontend origin.
+      - key: FRONTEND_URL
+        value: https://sdcart-frontend.onrender.com
+      # Admin bootstrap — set ADMIN_PASSWORD in the Dashboard; while empty no
+      # admin account is created in production (fail safe).
+      - key: ADMIN_EMAIL
+        value: admin@sdcart.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Optional integrations — uncomment and set values in the Dashboard
+      # when you enable them (see backend/.env.example for descriptions):
+      # - key: CLOUDINARY_CLOUD_NAME
+      #   sync: false
+      # - key: CLOUDINARY_API_KEY
+      #   sync: false
+      # - key: CLOUDINARY_API_SECRET
+      #   sync: false
+      # - key: PAYMENT_PROVIDER
+      #   value: stripe
+      # - key: STRIPE_SECRET_KEY
+      #   sync: false
+      # - key: STRIPE_WEBHOOK_SECRET
+      #   sync: false
+      # - key: EMAIL_PROVIDER
+      #   value: smtp
+      # - key: SMTP_HOST
+      #   sync: false
+      # - key: SMTP_PORT
+      #   value: "587"
+      # - key: SMTP_USERNAME
+      #   sync: false
+      # - key: SMTP_PASSWORD
+      #   sync: false
+
+  # --------------------------------------------------------------------------
+  # React frontend (Vite + Nginx, Docker)
+  # --------------------------------------------------------------------------
+  - type: web
+    name: sdcart-frontend
+    runtime: docker
+    plan: starter
+    region: oregon
+    rootDir: frontend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    envVars:
+      # Injected as a Docker build arg (Render exposes service env vars to the
+      # build). The browser calls the backend directly; CORS is allowed via
+      # the backend's FRONTEND_URL above.
+      - key: VITE_API_BASE_URL
+        value: https://sdcart-backend.onrender.com
