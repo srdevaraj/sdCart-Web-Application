@@ -60,7 +60,6 @@ services:
       # JWT — generated once by Render; sync:false keeps it stable across syncs.
       - key: JWT_SECRET
         generateValue: true
-        sync: false
       - key: JWT_ACCESS_EXPIRATION
         value: "900000"
       - key: JWT_REFRESH_EXPIRATION
