@@ -64,7 +64,12 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
   }
 
   return (
-    <article className={cn('group relative flex flex-col overflow-hidden rounded-lg border bg-card shadow-card transition-shadow hover:shadow-pop', className)}>
+    <article
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-lg border bg-card shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lift',
+        className,
+      )}
+    >
       <Link
         to={`/products/${product.publicId}`}
         className="relative block aspect-square overflow-hidden bg-muted"

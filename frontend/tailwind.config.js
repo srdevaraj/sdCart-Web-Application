@@ -66,6 +66,7 @@ export default {
       boxShadow: {
         card: '0 1px 2px 0 rgb(0 0 0 / 0.05), 0 1px 3px 0 rgb(0 0 0 / 0.08)',
         pop: '0 8px 30px rgb(0 0 0 / 0.12)',
+        lift: '0 20px 40px -12px rgb(0 0 0 / 0.18)',
       },
       keyframes: {
         'fade-in': {
@@ -76,10 +77,20 @@ export default {
           from: { opacity: '0', transform: 'scale(0.97)' },
           to: { opacity: '1', transform: 'scale(1)' },
         },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-14px)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
         'scale-in': 'scale-in 0.15s ease-out',
+        float: 'float 6s ease-in-out infinite',
+        'float-slow': 'float-slow 8s ease-in-out infinite',
       },
     },
   },
