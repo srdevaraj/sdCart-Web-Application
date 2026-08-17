@@ -50,6 +50,9 @@ public class WishlistService {
                 .wishlist(wishlist)
                 .product(product)
                 .build());
+        // Flush so @PrePersist assigns the item's publicId before the response
+        // is serialized (otherwise the add response omits item ids).
+        wishlistItemRepository.flush();
         return WishlistResponse.from(wishlist);
     }
 

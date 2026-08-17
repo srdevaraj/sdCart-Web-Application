@@ -64,6 +64,9 @@ public class CartService {
             item.setQuantity(newQuantity);
             item.setUnitPrice(product.getPrice());
         }
+        // Flush so @PrePersist assigns the item's publicId before the response
+        // is serialized (otherwise the add response omits item ids).
+        cartItemRepository.flush();
         return CartResponse.from(cart);
     }
 
