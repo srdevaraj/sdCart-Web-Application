@@ -13,7 +13,7 @@ const SHOP_LINKS = [
 const ACCOUNT_LINKS = [
   { label: 'My Account', to: '/account/profile' },
   { label: 'My Orders', to: '/account/orders' },
-  { label: 'Wishlist', to: '/wishlist' },
+  { label: 'Wishlist', to: '/account/wishlist' },
   { label: 'Cart', to: '/cart' },
 ]
 

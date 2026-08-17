@@ -134,7 +134,7 @@ export function Header() {
           )}
 
           <Button asChild variant="ghost" size="icon" aria-label="Wishlist">
-            <Link to="/wishlist">
+            <Link to="/account/wishlist">
               <Heart />
             </Link>
           </Button>
@@ -176,7 +176,7 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/wishlist">
+                  <Link to="/account/wishlist">
                     <Heart /> Wishlist
                   </Link>
                 </DropdownMenuItem>

@@ -69,6 +69,8 @@ export const router = createBrowserRouter([
       { path: 'privacy', element: withSuspense(<PrivacyPage />) },
       { path: 'login', element: withSuspense(<LoginPage />) },
       { path: 'register', element: withSuspense(<RegisterPage />) },
+      // /wishlist redirects into the authenticated account section
+      { path: 'wishlist', element: <Navigate to="/account/wishlist" replace /> },
       { path: 'forgot-password', element: withSuspense(<ForgotPasswordPage />) },
       { path: 'reset-password', element: withSuspense(<ResetPasswordPage />) },
       {
