@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -37,7 +36,6 @@ export function ReviewForm({
   onCancel,
   onSuccess,
 }: ReviewFormProps) {
-  const [rating, setRating] = useState(initialValues?.rating ?? 0)
   const createReview = useCreateReview(productId)
   const updateReview = useUpdateReview(productId)
   const isSubmitting = createReview.isPending || updateReview.isPending
@@ -45,6 +43,7 @@ export function ReviewForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
@@ -72,7 +71,13 @@ export function ReviewForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <FormField label="Your rating" error={errors.rating?.message} required>
-        <RatingInput value={rating} onChange={setRating} disabled={isSubmitting} />
+        <Controller
+          control={control}
+          name="rating"
+          render={({ field }) => (
+            <RatingInput value={field.value} onChange={field.onChange} disabled={isSubmitting} />
+          )}
+        />
       </FormField>
       <FormField label="Title" htmlFor="review-title" error={errors.title?.message} hint="Optional, e.g. 'Great value'">
         <Input id="review-title" placeholder="Summary of your experience" {...register('title')} />

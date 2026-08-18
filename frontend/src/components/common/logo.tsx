@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import clogo from '../../../assets/clogo.png'
 
 interface LogoProps {
   className?: string
@@ -11,15 +11,17 @@ export function Logo({ className, linkTo = '/' }: LogoProps) {
   return (
     <Link
       to={linkTo}
-      className={cn('inline-flex items-center gap-2 font-display text-xl font-bold tracking-tight', className)}
+      className={cn('inline-flex shrink-0 items-center', className)}
       aria-label="sdCart home"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <ShoppingBag className="h-5 w-5" aria-hidden />
-      </span>
-      <span>
-        sd<span className="text-primary">Cart</span>
-      </span>
+      <img
+        src={clogo}
+        alt="sdCart"
+        width={1024}
+        height={1024}
+        draggable={false}
+        className="h-8 w-8 object-contain"
+      />
     </Link>
   )
 }
