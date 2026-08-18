@@ -141,13 +141,20 @@ export default function OrderDetailPage() {
               </div>
 
               {/* Status */}
-              <div className="flex flex-wrap items-center gap-2">
-                <OrderStatusBadge status={order.status} />
-
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Order status
+                  </span>
+                  <OrderStatusBadge status={order.status} />
+                </div>
                 {order.payment && (
-                  <PaymentStatusBadge
-                    status={order.payment.status}
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Payment status
+                    </span>
+                    <PaymentStatusBadge status={order.payment.status} />
+                  </div>
                 )}
               </div>
             </div>

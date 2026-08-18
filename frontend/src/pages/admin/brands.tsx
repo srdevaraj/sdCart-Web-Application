@@ -30,7 +30,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
-import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { DeleteConfirmDialog } from '@/components/common/delete-confirm-dialog'
+import { ImageUpload } from '@/components/common/image-upload'
 import { FormField } from '@/components/common/form-field'
 import { Spinner } from '@/components/common/loading-state'
 import { Reveal } from '@/components/common/reveal'
@@ -386,11 +387,9 @@ function BrandCard({
               <Pencil />
             </Button>
 
-            <ConfirmDialog
-              title="Delete brand?"
-              description={`${brand.name} will be permanently deleted.`}
-              confirmLabel="Delete"
-              destructive
+            <DeleteConfirmDialog
+              title="Delete brand"
+              entityName={brand.name}
               onConfirm={onDelete}
               trigger={
                 <Button
@@ -590,19 +589,16 @@ function BrandForm({
 
       {/* Logo */}
       <FormField
-        label="Logo URL"
+        label="Brand logo"
         error={errors.logoUrl?.message}
-        hint="Use a publicly accessible image URL."
+        hint="Upload a brand logo image."
       >
-        <div className="relative">
-          <ImageIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-
-          <Input
-            {...register('logoUrl')}
-            placeholder="https://example.com/logo.png"
-            className="h-11 rounded-xl pl-10"
-          />
-        </div>
+        <ImageUpload
+          value={watch('logoUrl')}
+          onChange={(url) => setValue('logoUrl', url ?? '')}
+          label="Brand logo"
+          hint="Square or horizontal logo recommended."
+        />
       </FormField>
 
       {/* Active status */}

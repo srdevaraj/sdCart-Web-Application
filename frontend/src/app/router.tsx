@@ -38,6 +38,7 @@ const AdminInventoryPage = lazy(() => import('@/pages/admin/inventory'))
 const AdminCategoriesPage = lazy(() => import('@/pages/admin/categories'))
 const AdminBrandsPage = lazy(() => import('@/pages/admin/brands'))
 const AdminOrdersPage = lazy(() => import('@/pages/admin/orders'))
+const AdminOrderDetailPage = lazy(() => import('@/pages/admin/order-detail'))
 const AdminPaymentsPage = lazy(() => import('@/pages/admin/payments'))
 const AdminCouponsPage = lazy(() => import('@/pages/admin/coupons'))
 const AdminUsersPage = lazy(() => import('@/pages/admin/users'))
@@ -131,6 +132,7 @@ export const router = createBrowserRouter([
       { path: 'categories', element: withSuspense(<AdminCategoriesPage />) },
       { path: 'brands', element: withSuspense(<AdminBrandsPage />) },
       { path: 'orders', element: withSuspense(<AdminOrdersPage />) },
+      { path: 'orders/:publicId', element: withSuspense(<AdminOrderDetailPage />) },
       { path: 'payments', element: withSuspense(<AdminPaymentsPage />) },
       { path: 'coupons', element: withSuspense(<AdminCouponsPage />) },
       { path: 'users', element: withSuspense(<AdminUsersPage />) },

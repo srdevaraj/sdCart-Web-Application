@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Globe, Info, Mail, ShieldCheck, ShoppingBag } from 'lucide-react'
+import { Globe, ShieldCheck } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/features/auth/auth-store'
 import { formatDate } from '@/utils/format'
@@ -38,59 +38,36 @@ export default function AdminSettingsPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="flex-row items-center gap-3 space-y-0">
-              <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
-              <div>
-                <CardTitle>Signed in as</CardTitle>
-                <CardDescription>Your administrator account.</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {user ? (
-                <>
-                  <SettingRow label="Name" value={`${user.firstName} ${user.lastName}`} />
-                  <SettingRow label="Email" value={user.email} />
-                  <SettingRow label="Roles" value={user.roles.join(', ')} />
-                  <SettingRow label="Member since" value={formatDate(user.createdAt)} />
-                </>
-              ) : (
-                <p className="text-muted-foreground">Not signed in.</p>
-              )}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Link to="/account/profile" className="text-sm font-medium text-primary hover:underline">
-                  Edit profile
-                </Link>
-                <span aria-hidden>·</span>
-                <Link to="/account/orders" className="text-sm font-medium text-primary hover:underline">
-                  View orders
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex-row items-center gap-3 space-y-0">
-              <Info className="h-5 w-5 text-primary" aria-hidden />
-              <div>
-                <CardTitle>Tips</CardTitle>
-                <CardDescription>Quick references for this demo environment.</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>• Demo admin login: <span className="font-mono">admin@sdcart.com</span></p>
-              <p>• Order status transitions: PENDING → CONFIRMED → SHIPPED → DELIVERED</p>
-              <p>• Test coupon codes: <span className="font-mono">WELCOME10</span>, <span className="font-mono">SAVE20</span></p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4" aria-hidden /> For production help, see the backend README.
-              </p>
-              <p className="flex items-center gap-2">
-                <ShoppingBag className="h-4 w-4" aria-hidden /> Manage products, orders, coupons and more from the menu.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader className="flex-row items-center gap-3 space-y-0">
+            <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
+            <div>
+              <CardTitle>Signed in as</CardTitle>
+              <CardDescription>Your administrator account.</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {user ? (
+              <>
+                <SettingRow label="Name" value={`${user.firstName} ${user.lastName}`} />
+                <SettingRow label="Email" value={user.email} />
+                <SettingRow label="Roles" value={user.roles.join(', ')} />
+                <SettingRow label="Member since" value={formatDate(user.createdAt)} />
+              </>
+            ) : (
+              <p className="text-muted-foreground">Not signed in.</p>
+            )}
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Link to="/account/profile" className="text-sm font-medium text-primary hover:underline">
+                Edit profile
+              </Link>
+              <span aria-hidden>·</span>
+              <Link to="/account/orders" className="text-sm font-medium text-primary hover:underline">
+                View orders
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

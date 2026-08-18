@@ -91,10 +91,8 @@ export default function AdminOrdersPage() {
                     <tr key={order.publicId} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <Link
-                          to={`/account/orders/${order.publicId}`}
+                          to={`/admin/orders/${order.publicId}`}
                           className="font-mono font-medium hover:text-primary"
-                          target="_blank"
-                          rel="noreferrer"
                         >
                           {order.orderNumber}
                         </Link>

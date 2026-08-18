@@ -12,9 +12,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
-import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { DeleteConfirmDialog } from '@/components/common/delete-confirm-dialog'
 import { FormField } from '@/components/common/form-field'
 import { Spinner } from '@/components/common/loading-state'
+import { ImageUpload } from '@/components/common/image-upload'
+import { ProductImage } from '@/components/common/product-image'
 import { useCategories } from '@/features/products/hooks'
 import { useCreateCategory, useDeleteCategory, useUpdateCategory } from '@/features/admin/hooks'
 import { getErrorMessage } from '@/lib/api-client'
@@ -78,9 +80,13 @@ export default function AdminCategoriesPage() {
             <div key={category.publicId} className="rounded-lg border bg-card p-5">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
-                    <Boxes className="h-5 w-5" aria-hidden />
-                  </div>
+                  {category.imageUrl ? (
+                    <ProductImage src={category.imageUrl} alt={category.name} className="h-10 w-10 shrink-0 rounded-md object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <Boxes className="h-5 w-5" aria-hidden />
+                    </div>
+                  )}
                   <div>
                     <h2 className="font-semibold">{category.name}</h2>
                     <p className="text-xs text-muted-foreground">/{category.slug}</p>
@@ -98,11 +104,9 @@ export default function AdminCategoriesPage() {
                   >
                     <Pencil />
                   </Button>
-                  <ConfirmDialog
-                    title="Delete category?"
-                    description={`${category.name} will be permanently deleted.`}
-                    confirmLabel="Delete"
-                    destructive
+                  <DeleteConfirmDialog
+                    title="Delete category"
+                    entityName={category.name}
                     onConfirm={async () => {
                       await deleteCategory.mutateAsync(category.publicId, {
                         onError: (error) => toast.error(getErrorMessage(error, 'Could not delete category')),
@@ -110,7 +114,7 @@ export default function AdminCategoriesPage() {
                       toast.success('Category deleted')
                     }}
                     trigger={
-                      <Button variant="ghost" size="icon-sm" aria-label={`Delete ${category.name}`}>
+                      <Button variant="ghost" size="icon-sm" aria-label={`Delete ${category.name}`} className="text-muted-foreground hover:text-destructive">
                         <Trash2 />
                       </Button>
                     }
@@ -204,8 +208,12 @@ function CategoryForm({ category, onSuccess }: { category?: CategoryResponse; on
       <FormField label="Description" error={errors.description?.message}>
         <Textarea rows={2} {...register('description')} />
       </FormField>
-      <FormField label="Image URL" error={errors.imageUrl?.message}>
-        <Input {...register('imageUrl')} placeholder="https://…/category.jpg" />
+      <FormField label="Image" error={errors.imageUrl?.message}>
+        <ImageUpload
+          value={watch('imageUrl')}
+          onChange={(url) => setValue('imageUrl', url ?? '')}
+          hint="Upload a category image. Square aspect ratio recommended."
+        />
       </FormField>
       <FormField label="Sort order" error={errors.sortOrder?.message}>
         <Input type="number" min={0} {...register('sortOrder')} />

@@ -48,6 +48,14 @@ export function useAdminOrders(status?: OrderStatus, page = 0, size = 20) {
   })
 }
 
+export function useAdminOrder(publicId: string | undefined) {
+  return useQuery({
+    queryKey: [...adminKeys.orders, 'detail', publicId ?? ''],
+    queryFn: () => adminService.getOrder(publicId as string),
+    enabled: Boolean(publicId),
+  })
+}
+
 export function useAdminPayments(page = 0, size = 20) {
   return useQuery({
     queryKey: [...adminKeys.payments, { page, size }],
@@ -225,5 +233,11 @@ export function useSetCouponActive() {
     mutationFn: ({ publicId, active }: { publicId: string; active: boolean }) =>
       adminService.setCouponActive(publicId, active),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.coupons }),
+  })
+}
+
+export function useUploadImage() {
+  return useMutation({
+    mutationFn: (file: File) => adminService.uploadImage(file),
   })
 }

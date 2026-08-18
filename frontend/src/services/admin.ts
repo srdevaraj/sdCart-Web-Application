@@ -149,11 +149,29 @@ export const adminService = {
     })
   },
 
+  async getOrder(publicId: string): Promise<OrderResponse> {
+    return request<OrderResponse>({ method: 'GET', url: `/admin/orders/${publicId}` })
+  },
+
   async updateOrderStatus(publicId: string, status: OrderStatus): Promise<OrderResponse> {
     return request<OrderResponse>({
       method: 'PATCH',
       url: `/admin/orders/${publicId}/status`,
       data: { status } satisfies OrderStatusUpdateRequest,
+    })
+  },
+
+  // -------------------------------------------------------------------------
+  // Images
+  // -------------------------------------------------------------------------
+  async uploadImage(file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData()
+    formData.append('image', file)
+    return request<{ imageUrl: string }>({
+      method: 'POST',
+      url: '/admin/images/upload',
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 

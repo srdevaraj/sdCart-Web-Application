@@ -38,6 +38,11 @@ public class AdminOrderController {
         return ResponseEntity.ok(ApiResponse.ok(orderService.listOrders(status, pageable)));
     }
 
+    @GetMapping("/{publicId}")
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable UUID publicId) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.getOrderAdmin(publicId)));
+    }
+
     @PatchMapping("/{publicId}/status")
     public ResponseEntity<ApiResponse<OrderResponse>> updateStatus(@PathVariable UUID publicId,
                                                                    @Valid @RequestBody OrderStatusUpdateRequest request) {

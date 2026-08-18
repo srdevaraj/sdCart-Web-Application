@@ -247,6 +247,13 @@ public class OrderService {
         return PageResponse.from(orders, order -> OrderResponse.from(order, paymentOf(order)));
     }
 
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderAdmin(UUID publicId) {
+        Order order = orderRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", publicId));
+        return OrderResponse.from(order, paymentOf(order));
+    }
+
     @Transactional
     public OrderResponse updateStatus(UUID publicId, OrderStatus newStatus) {
         Order order = orderRepository.findByPublicId(publicId)
