@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------------
--- V4: Cloudinary image management
+-- V5: Cloudinary image management
 --
 -- Stores the Cloudinary public ID alongside the image URL so the backend can
 -- delete or replace the exact remote asset (never stored in the URL alone —
