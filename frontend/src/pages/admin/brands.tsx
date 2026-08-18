@@ -9,7 +9,6 @@ import {
   CircleDot,
   ExternalLink,
   ImageIcon,
-  MoreHorizontal,
   Pencil,
   Plus,
   Sparkles,
