@@ -71,7 +71,12 @@ export function useAdminCoupons(page = 0, size = 20) {
 export function useCreateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: ProductCreateRequest) => adminService.createProduct(payload),
+    mutationFn: (input: { payload: ProductCreateRequest; files?: File[]; altTexts?: string[] }) => {
+      if (input.files && input.files.length > 0) {
+        return adminService.createProductWithImages(input.payload, input.files, input.altTexts ?? [])
+      }
+      return adminService.createProduct(input.payload)
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
   })
 }
@@ -79,8 +84,17 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ publicId, payload }: { publicId: string; payload: ProductUpdateRequest }) =>
-      adminService.updateProduct(publicId, payload),
+    mutationFn: (input: {
+      publicId: string
+      payload: ProductUpdateRequest
+      files?: File[]
+      altTexts?: string[]
+    }) => {
+      if (input.files && input.files.length > 0) {
+        return adminService.updateProductWithImages(input.publicId, input.payload, input.files, input.altTexts ?? [])
+      }
+      return adminService.updateProduct(input.publicId, input.payload)
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
   })
 }

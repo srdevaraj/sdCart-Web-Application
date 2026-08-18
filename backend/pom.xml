@@ -93,6 +93,14 @@
             <version>${springdoc.version}</version>
         </dependency>
 
+        <!-- Cloudinary (product image uploads — optional; credentials come from
+             CLOUDINARY_* environment variables, see application.yml) -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http5</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <!-- Code generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -45,6 +45,42 @@ export const adminService = {
     return request<ProductResponse>({ method: 'PUT', url: `/admin/products/${publicId}`, data: payload })
   },
 
+  /**
+   * Create a product with image files. The product fields travel as a JSON
+   * part named `product`; the files as a repeated `images` part and the
+   * parallel alt texts as a JSON `altTexts` part. The backend uploads the
+   * files to Cloudinary — no Cloudinary credential ever leaves the server.
+   */
+  async createProductWithImages(
+    payload: ProductCreateRequest,
+    files: File[],
+    altTexts: string[],
+  ): Promise<ProductResponse> {
+    const formData = buildProductFormData(payload, files, altTexts)
+    return request<ProductResponse>({
+      method: 'POST',
+      url: '/admin/products',
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  /** Same as {@link createProductWithImages} but for updates. */
+  async updateProductWithImages(
+    publicId: string,
+    payload: ProductUpdateRequest,
+    files: File[],
+    altTexts: string[],
+  ): Promise<ProductResponse> {
+    const formData = buildProductFormData(payload, files, altTexts)
+    return request<ProductResponse>({
+      method: 'PUT',
+      url: `/admin/products/${publicId}`,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
   async updateProductStatus(publicId: string, status: ProductStatus): Promise<ProductResponse> {
     return request<ProductResponse>({
       method: 'PATCH',
@@ -150,4 +186,23 @@ export const adminService = {
       data: { active } satisfies CouponActiveRequest,
     })
   },
+}
+
+/**
+ * Builds the multipart body for product create/update: a JSON `product` part
+ * (all existing product fields, minus images which travel as files), a
+ * repeated `images` part for each file and a JSON `altTexts` part parallel to
+ * the files.
+ */
+function buildProductFormData(
+  payload: ProductCreateRequest | ProductUpdateRequest,
+  files: File[],
+  altTexts: string[],
+): FormData {
+  const formData = new FormData()
+  const { images: _images, ...productFields } = payload
+  formData.append('product', new Blob([JSON.stringify(productFields)], { type: 'application/json' }))
+  files.forEach((file) => formData.append('images', file))
+  formData.append('altTexts', new Blob([JSON.stringify(altTexts)], { type: 'application/json' }))
+  return formData
 }

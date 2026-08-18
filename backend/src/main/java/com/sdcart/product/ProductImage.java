@@ -29,6 +29,14 @@ public class ProductImage extends BaseEntity {
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
+    /**
+     * Cloudinary public ID of the asset behind {@link #imageUrl}. Null for
+     * images that are not managed by Cloudinary (e.g. seeded placehold.co
+     * URLs). Used to delete/replace the exact remote asset.
+     */
+    @Column(name = "cloudinary_public_id", length = 255)
+    private String cloudinaryPublicId;
+
     @Column(name = "alt_text", length = 255)
     private String altText;
 

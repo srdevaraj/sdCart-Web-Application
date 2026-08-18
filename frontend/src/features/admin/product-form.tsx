@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormField } from '@/components/common/form-field'
 import { Spinner } from '@/components/common/loading-state'
+import { ProductImage } from '@/components/common/product-image'
 import {
   Select,
   SelectContent,
@@ -20,6 +21,17 @@ import { useBrands, useCategories } from '@/features/products/hooks'
 import { useCreateProduct, useUpdateProduct } from '@/features/admin/hooks'
 import { getErrorMessage } from '@/lib/api-client'
 import { PRODUCT_STATUSES, type ProductResponse, type ProductStatus } from '@/types'
+
+/**
+ * Image rows accept a local file (uploaded to Cloudinary via the backend) and
+ * an optional alt text. When editing, `imageUrl` carries the existing image
+ * for display; the row is only sent as an upload when a new `file` is chosen.
+ */
+const imageSchema = z.object({
+  file: z.instanceof(File).optional(),
+  imageUrl: z.string().max(500).optional(),
+  altText: z.string().max(255).optional(),
+})
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
@@ -35,16 +47,13 @@ const productSchema = z.object({
   featured: z.boolean(),
   categoryId: z.string().optional().or(z.literal('')),
   brandId: z.string().optional().or(z.literal('')),
-  images: z.array(
-    z.object({
-      imageUrl: z.string().min(1, 'Image URL is required').max(500),
-      altText: z.string().max(255).optional(),
-    }),
-  ),
+  images: z.array(imageSchema),
   specifications: z.array(z.object({ name: z.string().max(100), value: z.string().max(500) })),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
+
+const ACCEPTED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp,image/gif'
 
 interface ProductFormProps {
   product?: ProductResponse
@@ -99,7 +108,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           featured: false,
           categoryId: '',
           brandId: '',
-          images: [{ imageUrl: '', altText: '' }],
+          images: [{ altText: '' }],
           specifications: [{ name: '', value: '' }],
         },
   })
@@ -109,7 +118,21 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
   const featured = watch('featured')
 
   async function onSubmit(values: ProductFormValues) {
-    const payload = {
+    const imageRows = values.images.filter(
+      (img) => img.file instanceof File || (img.imageUrl ?? '').trim().length > 0,
+    )
+    const files = imageRows
+      .map((img) => (img.file instanceof File ? img.file : null))
+      .filter((file): file is File => file !== null)
+    const altTexts = imageRows.map((img) => img.altText?.trim() ?? '')
+
+    // Creating a product still requires at least one image (same as before).
+    if (!product && files.length === 0) {
+      toast.error('Select at least one image file')
+      return
+    }
+
+    const basePayload = {
       name: values.name,
       slug: values.slug || undefined,
       sku: values.sku || undefined,
@@ -123,9 +146,6 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       featured: values.featured,
       categoryId: values.categoryId || undefined,
       brandId: values.brandId || undefined,
-      images: values.images
-        .filter((img) => img.imageUrl.trim().length > 0)
-        .map((img, i) => ({ imageUrl: img.imageUrl.trim(), altText: img.altText || undefined, sortOrder: i, primary: i === 0 })),
       specifications: values.specifications
         .filter((s) => s.name.trim().length > 0 && s.value.trim().length > 0)
         .map((s, i) => ({ name: s.name.trim(), value: s.value.trim(), sortOrder: i })),
@@ -133,10 +153,30 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
 
     try {
       if (product) {
-        await updateProduct.mutateAsync({ publicId: product.publicId, payload })
+        if (files.length > 0) {
+          // Replacement image(s) — sent as multipart; the backend uploads them
+          // to Cloudinary and removes the replaced assets after saving.
+          await updateProduct.mutateAsync({ publicId: product.publicId, payload: basePayload, files, altTexts })
+        } else {
+          // No new image — keep the existing images (URL-based JSON, unchanged).
+          await updateProduct.mutateAsync({
+            publicId: product.publicId,
+            payload: {
+              ...basePayload,
+              images: imageRows
+                .filter((img) => (img.imageUrl ?? '').trim().length > 0)
+                .map((img, i) => ({
+                  imageUrl: (img.imageUrl as string).trim(),
+                  altText: img.altText || undefined,
+                  sortOrder: i,
+                  primary: i === 0,
+                })),
+            },
+          })
+        }
         toast.success('Product updated')
       } else {
-        await createProduct.mutateAsync(payload)
+        await createProduct.mutateAsync({ payload: basePayload, files, altTexts })
         toast.success('Product created')
       }
       onSuccess?.()
@@ -230,25 +270,48 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       <div className="space-y-3">
         <p className="text-sm font-semibold">Images</p>
         {images.fields.map((field, i) => (
-          <div key={field.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-            <Input {...register(`images.${i}.imageUrl`)} placeholder="https://…/image.jpg" aria-label={`Image ${i + 1} URL`} />
-            <Input {...register(`images.${i}.altText`)} placeholder="Alt text" aria-label={`Image ${i + 1} alt text`} />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => images.remove(i)}
-              disabled={images.fields.length <= 1}
-              aria-label={`Remove image ${i + 1}`}
-            >
-              <Trash2 />
-            </Button>
+          <div key={field.id} className="space-y-2 rounded-lg border bg-card p-3">
+            <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+              <div className="flex items-center gap-2">
+                {field.imageUrl ? (
+                  <ProductImage src={field.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-md" />
+                ) : null}
+                <input
+                  type="file"
+                  accept={ACCEPTED_IMAGE_TYPES}
+                  aria-label={`Image ${i + 1} file`}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    setValue(`images.${i}.file`, file ?? undefined)
+                  }}
+                  className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-primary/90"
+                />
+              </div>
+              <Input {...register(`images.${i}.altText`)} placeholder="Alt text" aria-label={`Image ${i + 1} alt text`} />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => images.remove(i)}
+                disabled={images.fields.length <= 1}
+                aria-label={`Remove image ${i + 1}`}
+              >
+                <Trash2 />
+              </Button>
+            </div>
+            {field.imageUrl ? (
+              <p className="text-xs text-muted-foreground">
+                Current image — choose a file above to replace it.
+              </p>
+            ) : null}
           </div>
         ))}
-        <Button type="button" variant="outline" size="sm" onClick={() => images.append({ imageUrl: '', altText: '' })}>
+        <Button type="button" variant="outline" size="sm" onClick={() => images.append({ altText: '' })}>
           <Plus className="h-4 w-4" aria-hidden /> Add image
         </Button>
-        <p className="text-xs text-muted-foreground">The first image is used as the product thumbnail.</p>
+        <p className="text-xs text-muted-foreground">
+          Images are uploaded securely to Cloudinary. The first image is used as the product thumbnail.
+        </p>
       </div>
 
       <div className="space-y-3">

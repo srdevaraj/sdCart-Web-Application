@@ -13,14 +13,20 @@ import com.sdcart.product.dto.ProductImageRequest;
 import com.sdcart.product.dto.ProductResponse;
 import com.sdcart.product.dto.ProductSpecificationRequest;
 import com.sdcart.product.dto.ProductUpdateRequest;
+import com.sdcart.service.CloudinaryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,13 +36,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
+    private final CloudinaryService cloudinaryService;
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
-                          BrandRepository brandRepository) {
+                          BrandRepository brandRepository,
+                          CloudinaryService cloudinaryService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     // ------------------------------------------------------------------
@@ -94,40 +103,107 @@ public class ProductService {
         return ProductResponse.from(getEntity(publicId));
     }
 
+    /**
+     * Creates a product from a JSON body, using URL-based images exactly as
+     * before (unchanged contract).
+     */
     @Transactional
     public ProductResponse createProduct(ProductCreateRequest request) {
-        String slug = resolveUniqueSlug(request.slug(), request.name(), null);
-        Product product = Product.builder()
-                .name(request.name().trim())
-                .slug(slug)
-                .sku(request.sku())
-                .shortDescription(request.shortDescription())
-                .description(request.description())
-                .price(request.price())
-                .compareAtPrice(request.compareAtPrice())
-                .costPrice(request.costPrice())
-                .stockQuantity(request.stockQuantity() == null ? 0 : request.stockQuantity())
-                .status(request.status() == null ? ProductStatus.ACTIVE : request.status())
-                .featured(Boolean.TRUE.equals(request.featured()))
-                .build();
-        if (request.categoryId() != null) {
-            product.setCategory(categoryRepository.findByPublicId(request.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", request.categoryId())));
-        }
-        if (request.brandId() != null) {
-            product.setBrand(brandRepository.findByPublicId(request.brandId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Brand", request.brandId())));
-        }
-        applyImages(product, request.images());
-        applySpecifications(product, request.specifications());
-        Product saved = productRepository.save(product);
-        log.info("Created product id={} slug={}", saved.getId(), saved.getSlug());
-        return ProductResponse.from(saved);
+        return createProduct(request, null, null);
     }
 
+    /**
+     * Creates a product, optionally uploading the supplied image files to
+     * Cloudinary. When files are provided they become the product's images
+     * (first file = primary); otherwise the URL-based images from the request
+     * are used. If the database save fails after a successful Cloudinary
+     * upload, the freshly uploaded assets are removed again so no orphaned
+     * images are left behind.
+     */
+    @Transactional
+    public ProductResponse createProduct(ProductCreateRequest request,
+                                         List<MultipartFile> images, List<String> altTexts) {
+        List<CloudinaryService.UploadedImage> uploads = cloudinaryService.uploadProductImages(images, altTexts);
+        try {
+            String slug = resolveUniqueSlug(request.slug(), request.name(), null);
+            Product product = Product.builder()
+                    .name(request.name().trim())
+                    .slug(slug)
+                    .sku(request.sku())
+                    .shortDescription(request.shortDescription())
+                    .description(request.description())
+                    .price(request.price())
+                    .compareAtPrice(request.compareAtPrice())
+                    .costPrice(request.costPrice())
+                    .stockQuantity(request.stockQuantity() == null ? 0 : request.stockQuantity())
+                    .status(request.status() == null ? ProductStatus.ACTIVE : request.status())
+                    .featured(Boolean.TRUE.equals(request.featured()))
+                    .build();
+            if (request.categoryId() != null) {
+                product.setCategory(categoryRepository.findByPublicId(request.categoryId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Category", request.categoryId())));
+            }
+            if (request.brandId() != null) {
+                product.setBrand(brandRepository.findByPublicId(request.brandId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Brand", request.brandId())));
+            }
+            if (!uploads.isEmpty()) {
+                applyCloudinaryImages(product, uploads, altTexts);
+            } else {
+                applyImages(product, request.images());
+            }
+            applySpecifications(product, request.specifications());
+            Product saved = productRepository.save(product);
+            log.info("Created product id={} slug={}", saved.getId(), saved.getSlug());
+            return ProductResponse.from(saved);
+        } catch (RuntimeException ex) {
+            // Compensation: the product was not saved, so the uploaded
+            // Cloudinary assets would otherwise become orphans.
+            cloudinaryService.deleteUploads(uploads);
+            throw ex;
+        }
+    }
+
+    /**
+     * Updates a product from a JSON body, using URL-based images exactly as
+     * before (unchanged contract).
+     */
     @Transactional
     public ProductResponse updateProduct(UUID publicId, ProductUpdateRequest request) {
+        return updateProduct(publicId, request, null, null);
+    }
+
+    /**
+     * Updates a product, optionally replacing its images with new files
+     * uploaded to Cloudinary. The new images are uploaded and the transaction
+     * committed before the replaced Cloudinary assets are deleted — an upload
+     * or database failure never destroys the currently displayed images, and a
+     * rollback removes the freshly uploaded assets instead.
+     *
+     * <p>When no files are supplied, the product's images stay exactly as they
+     * are unless a URL-based {@code images} list is provided in the request
+     * (pre-existing JSON behavior).
+     */
+    @Transactional
+    public ProductResponse updateProduct(UUID publicId, ProductUpdateRequest request,
+                                         List<MultipartFile> images, List<String> altTexts) {
         Product product = getEntity(publicId);
+        List<CloudinaryService.UploadedImage> uploads = List.of();
+        List<String> replacedPublicIds = List.of();
+
+        if (images != null && !images.isEmpty()) {
+            // Upload the replacement images BEFORE touching the product: a
+            // failure here leaves the product and its current images untouched.
+            uploads = cloudinaryService.uploadProductImages(images, altTexts);
+            replacedPublicIds = product.getImages().stream()
+                    .map(ProductImage::getCloudinaryPublicId)
+                    .filter(StringUtils::hasText)
+                    .toList();
+            applyCloudinaryImages(product, uploads, altTexts);
+        } else if (request.images() != null) {
+            applyImages(product, request.images());
+        }
+
         if (request.name() != null) {
             product.setName(request.name().trim());
         }
@@ -151,8 +227,11 @@ public class ProductService {
             product.setBrand(brandRepository.findByPublicId(request.brandId())
                     .orElseThrow(() -> new ResourceNotFoundException("Brand", request.brandId())));
         }
-        if (request.images() != null) applyImages(product, request.images());
         if (request.specifications() != null) applySpecifications(product, request.specifications());
+
+        if (!uploads.isEmpty()) {
+            deferCloudinaryCleanup(uploads, replacedPublicIds);
+        }
         log.info("Updated product id={}", product.getId());
         return ProductResponse.from(product);
     }
@@ -168,6 +247,8 @@ public class ProductService {
     /**
      * Soft delete: the product is deactivated so it disappears from the public
      * catalog while keeping referential integrity with orders and carts.
+     * Cloudinary assets are intentionally NOT removed here — the product can
+     * be re-activated and existing orders still reference its images.
      */
     @Transactional
     public void deleteProduct(UUID publicId) {
@@ -210,6 +291,22 @@ public class ProductService {
         }
     }
 
+    private void applyCloudinaryImages(Product product, List<CloudinaryService.UploadedImage> uploads,
+                                       List<String> altTexts) {
+        product.getImages().clear();
+        for (int i = 0; i < uploads.size(); i++) {
+            CloudinaryService.UploadedImage uploaded = uploads.get(i);
+            product.getImages().add(ProductImage.builder()
+                    .product(product)
+                    .imageUrl(uploaded.secureUrl())
+                    .cloudinaryPublicId(uploaded.publicId())
+                    .altText(altTexts != null && i < altTexts.size() ? altTexts.get(i) : null)
+                    .sortOrder(i)
+                    .primary(i == 0)
+                    .build());
+        }
+    }
+
     private void applySpecifications(Product product, java.util.List<ProductSpecificationRequest> specifications) {
         if (specifications == null) {
             return;
@@ -224,5 +321,31 @@ public class ProductService {
                     .sortOrder(req.sortOrder() == null ? i : req.sortOrder())
                     .build());
         }
+    }
+
+    /**
+     * Defers Cloudinary cleanup until the surrounding DB transaction settles:
+     * replaced assets are deleted only after a successful commit, while a
+     * rollback removes the freshly uploaded assets instead — either way the
+     * database and Cloudinary never disagree about which images are live.
+     */
+    private void deferCloudinaryCleanup(List<CloudinaryService.UploadedImage> uploads, List<String> replacedPublicIds) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            cloudinaryService.deleteByPublicIds(replacedPublicIds);
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                cloudinaryService.deleteByPublicIds(replacedPublicIds);
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    cloudinaryService.deleteUploads(uploads);
+                }
+            }
+        });
     }
 }
