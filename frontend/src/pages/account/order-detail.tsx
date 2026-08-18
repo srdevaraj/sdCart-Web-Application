@@ -309,7 +309,7 @@ export default function OrderDetailPage() {
 
             <CardContent className="p-5 sm:p-7">
               <ul className="space-y-1">
-                {order.items.map((item, index) => (
+                {order.items.map((item) => (
                   <li
                     key={item.publicId}
                     className="group/item flex gap-4 rounded-2xl p-3 transition-all duration-300 hover:bg-muted/40"

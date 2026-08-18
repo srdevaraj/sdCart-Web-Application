@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
-  Check,
   CheckCircle2,
   Lock,
   Package,
@@ -21,7 +20,6 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { QuantityInput } from '@/components/common/quantity-input'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
