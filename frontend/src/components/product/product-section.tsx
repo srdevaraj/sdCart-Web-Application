@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { SectionHeading } from '@/components/common/section-heading'
-import { Reveal } from '@/components/common/reveal'
+import { MotionReveal } from '@/components/common/motion'
 import { ProductCard } from '@/components/product/product-card'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
@@ -52,16 +52,16 @@ export function ProductSection({
 
   return (
     <section aria-label={title} className={cn('space-y-7', className)}>
-      <Reveal>
+      <MotionReveal>
         <SectionHeading eyebrow={eyebrow} title={title} subtitle={subtitle} viewAllTo={viewAllTo} />
-      </Reveal>
+      </MotionReveal>
 
       {query.isError ? (
-        <Reveal>
+        <MotionReveal>
           <ErrorState onRetry={query.refetch} message="We couldn't load these products." />
-        </Reveal>
+        </MotionReveal>
       ) : isEmpty ? (
-        <Reveal>
+        <MotionReveal>
           <EmptyState
             icon={PackageOpen}
             title="Nothing here yet"
@@ -72,7 +72,7 @@ export function ProductSection({
               </Button>
             }
           />
-        </Reveal>
+        </MotionReveal>
       ) : query.isPending ? (
         <SectionSkeleton variant={variant} />
       ) : (
@@ -111,9 +111,9 @@ function GridContent({ products, ratings }: { products: ProductSummaryResponse[]
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {products.map((product, i) => (
-        <Reveal key={product.publicId} delay={(i % 4) * 60} className="h-full">
+        <MotionReveal key={product.publicId} delay={(i % 4) * 0.06} className="h-full">
           <ProductCard product={product} rating={ratings[i]} className="h-full" />
-        </Reveal>
+        </MotionReveal>
       ))}
     </div>
   )
@@ -123,13 +123,13 @@ function RailContent({ products, ratings }: { products: ProductSummaryResponse[]
   return (
     <div className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-2">
       {products.map((product, i) => (
-        <Reveal
+        <MotionReveal
           key={product.publicId}
-          delay={(i % 5) * 50}
+          delay={(i % 5) * 0.05}
           className="w-[220px] shrink-0 snap-start sm:w-[250px] lg:w-[270px]"
         >
           <ProductCard product={product} rating={ratings[i]} className="h-full" />
-        </Reveal>
+        </MotionReveal>
       ))}
     </div>
   )
@@ -139,13 +139,13 @@ function EditorialContent({ products, ratings }: { products: ProductSummaryRespo
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
       {products.map((product, i) => (
-        <Reveal
+        <MotionReveal
           key={product.publicId}
-          delay={(i % 4) * 60}
+          delay={(i % 4) * 0.06}
           className={cn(i === 0 && 'col-span-2 lg:col-span-2 lg:row-span-2', 'h-full')}
         >
           <ProductCard product={product} rating={ratings[i]} className="h-full" />
-        </Reveal>
+        </MotionReveal>
       ))}
     </div>
   )
@@ -155,9 +155,9 @@ function RankedContent({ products, ratings }: { products: ProductSummaryResponse
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {products.map((product, i) => (
-        <Reveal key={product.publicId} delay={(i % 2) * 60}>
+        <MotionReveal key={product.publicId} delay={(i % 2) * 0.06}>
           <RankedRow rank={i + 1} product={product} rating={ratings[i]} />
-        </Reveal>
+        </MotionReveal>
       ))}
     </div>
   )

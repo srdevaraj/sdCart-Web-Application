@@ -1,3 +1,4 @@
+import { useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -8,9 +9,10 @@ import {
   Star,
   Truck,
 } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Reveal } from '@/components/common/reveal'
+import { MotionReveal, MagneticHover } from '@/components/common/motion'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
 import { formatPrice } from '@/utils/format'
@@ -50,28 +52,10 @@ export function HeroSection({ query }: HeroSectionProps) {
       aria-labelledby="hero-heading"
     >
       {/* ============================================================
-          SUBTLE BACKGROUND
+          INTERACTIVE AURORA BACKGROUND
       ============================================================ */}
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.025] to-transparent" />
-
-        <div
-          className="
-            absolute
-            right-[-160px]
-            top-[-180px]
-            h-[420px]
-            w-[420px]
-            rounded-full
-            bg-primary/[0.045]
-            blur-3xl
-          "
-        />
-      </div>
+      <AuroraBackground />
 
       {/* ============================================================
           MAIN CONTENT
@@ -81,14 +65,15 @@ export function HeroSection({ query }: HeroSectionProps) {
         className="
           container
           relative
+          z-10
           grid
           items-center
           gap-8
-          py-10
-          sm:py-12
+          py-12
+          sm:py-16
           lg:grid-cols-[0.9fr_1.1fr]
           lg:gap-12
-          lg:py-14
+          lg:py-20
           xl:gap-16
         "
       >
@@ -99,7 +84,7 @@ export function HeroSection({ query }: HeroSectionProps) {
         <div className="max-w-xl">
           {/* Eyebrow */}
 
-          <Reveal>
+          <MotionReveal>
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Sparkles
@@ -112,11 +97,11 @@ export function HeroSection({ query }: HeroSectionProps) {
                 New season · Fresh arrivals
               </span>
             </div>
-          </Reveal>
+          </MotionReveal>
 
           {/* Heading */}
 
-          <Reveal delay={60}>
+          <MotionReveal delay={0.06}>
             <h1
               id="hero-heading"
               className="
@@ -134,15 +119,15 @@ export function HeroSection({ query }: HeroSectionProps) {
               "
             >
               Everything you need.
-              <span className="block text-primary">
+              <span className="block bg-gradient-to-r from-primary via-[hsl(var(--accent-glow))] to-primary bg-clip-text text-transparent">
                 Nothing you don't.
               </span>
             </h1>
-          </Reveal>
+          </MotionReveal>
 
           {/* Description */}
 
-          <Reveal delay={120}>
+          <MotionReveal delay={0.12}>
             <p
               className="
                 mt-5
@@ -158,59 +143,67 @@ export function HeroSection({ query }: HeroSectionProps) {
               home essentials and everyday favorites — all in one
               simple shopping experience.
             </p>
-          </Reveal>
+          </MotionReveal>
 
           {/* CTA */}
 
-          <Reveal delay={180}>
+          <MotionReveal delay={0.18}>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="
-                  h-10
-                  rounded-md
-                  px-5
-                  text-sm
-                  font-semibold
-                  shadow-sm
-                "
-              >
-                <Link to="/products">
-                  Shop now
-                  <ArrowRight
-                    className="h-4 w-4"
-                    aria-hidden
-                  />
-                </Link>
-              </Button>
+              <MagneticHover strength={0.25}>
+                <Button
+                  asChild
+                  size="lg"
+                  className="
+                    h-11
+                    rounded-xl
+                    px-6
+                    text-sm
+                    font-semibold
+                    shadow-md
+                    transition-shadow
+                    duration-300
+                    hover:shadow-glow
+                  "
+                >
+                  <Link to="/products">
+                    Shop now
+                    <ArrowRight
+                      className="h-4 w-4"
+                      aria-hidden
+                    />
+                  </Link>
+                </Button>
+              </MagneticHover>
 
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="
-                  h-10
-                  rounded-md
-                  px-5
-                  text-sm
-                  font-semibold
-                "
-              >
-                <Link to="/categories">
-                  Explore categories
-                  <ChevronRight
-                    className="h-4 w-4"
-                    aria-hidden
-                  />
-                </Link>
-              </Button>
+              <MagneticHover strength={0.2}>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="
+                    h-11
+                    rounded-xl
+                    px-6
+                    text-sm
+                    font-semibold
+                    glass-surface
+                  "
+                >
+                  <Link to="/categories">
+                    Explore categories
+                    <ChevronRight
+                      className="h-4 w-4"
+                      aria-hidden
+                    />
+                  </Link>
+                </Button>
+              </MagneticHover>
             </div>
-          </Reveal>
+          </MotionReveal>
 
           {/* Trust indicators */}
 
-          <Reveal delay={240}>
+          <MotionReveal delay={0.24}>
             <div
               className="
                 mt-7
@@ -241,27 +234,34 @@ export function HeroSection({ query }: HeroSectionProps) {
                 description="Shop with confidence"
               />
             </div>
-          </Reveal>
+          </MotionReveal>
         </div>
 
         {/* ==========================================================
-            RIGHT PRODUCT SHOWCASE
+            RIGHT PRODUCT SHOWCASE — GLASSMORPHISM CARD
         ========================================================== */}
 
-        <Reveal
-          delay={140}
+        <MotionReveal
+          delay={0.14}
           className="relative"
         >
           <div className="relative mx-auto max-w-2xl">
+            {/* Ambient glow behind card */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-8 rounded-3xl bg-gradient-to-br from-primary/15 via-transparent to-[hsl(var(--accent-glow)/0.1)] blur-2xl"
+            />
+
             {/* Main product container */}
 
             <div
               className="
+                glass-surface
+                relative
                 overflow-hidden
                 rounded-2xl
-                border
-                bg-card
-                shadow-[0_20px_55px_-30px_hsl(var(--foreground)/0.28)]
+                shadow-glass
+                dark:shadow-glass-dark
               "
             >
               {/* ==================================================
@@ -277,7 +277,7 @@ export function HeroSection({ query }: HeroSectionProps) {
                 "
               >
                 {query.isPending ? (
-                  <Skeleton className="h-full w-full rounded-none" />
+                  <div className="skeleton-shimmer h-full w-full" />
                 ) : heroProduct ? (
                   <>
                     <ProductImage
@@ -293,9 +293,9 @@ export function HeroSection({ query }: HeroSectionProps) {
                         w-full
                         object-cover
                         transition-transform
-                        duration-500
+                        duration-700
                         ease-out
-                        hover:scale-[1.02]
+                        hover:scale-[1.03]
                       "
                     />
 
@@ -308,9 +308,10 @@ export function HeroSection({ query }: HeroSectionProps) {
                         absolute
                         inset-x-0
                         bottom-0
-                        h-28
+                        h-32
                         bg-gradient-to-t
-                        from-black/20
+                        from-black/30
+                        via-black/10
                         to-transparent
                       "
                     />
@@ -324,13 +325,11 @@ export function HeroSection({ query }: HeroSectionProps) {
                 <div className="absolute left-4 top-4">
                   <span
                     className="
+                      glass-surface
                       inline-flex
                       items-center
                       gap-1.5
-                      rounded-md
-                      border
-                      border-white/30
-                      bg-background/90
+                      rounded-lg
                       px-2.5
                       py-1.5
                       text-[10px]
@@ -339,7 +338,6 @@ export function HeroSection({ query }: HeroSectionProps) {
                       tracking-wide
                       text-foreground
                       shadow-sm
-                      backdrop-blur-md
                     "
                   >
                     <Sparkles
@@ -362,19 +360,21 @@ export function HeroSection({ query }: HeroSectionProps) {
                         flex
                         flex-col
                         items-center
-                        rounded-lg
-                        bg-primary
+                        rounded-xl
+                        bg-gradient-to-br
+                        from-[hsl(var(--accent-warm))]
+                        to-[hsl(var(--accent-warm)/0.85)]
                         px-3
                         py-2
-                        text-primary-foreground
-                        shadow-lg
+                        text-white
+                        shadow-glow-warm
                       "
                     >
                       <span className="text-[9px] font-semibold uppercase tracking-wider">
                         Save
                       </span>
 
-                      <strong className="text-lg font-extrabold leading-none">
+                      <strong className="font-mono text-lg font-extrabold leading-none">
                         {discount}%
                       </strong>
                     </div>
@@ -386,7 +386,7 @@ export function HeroSection({ query }: HeroSectionProps) {
                   PRODUCT INFORMATION
               ================================================== */}
 
-              <div className="border-t px-4 py-4 sm:px-5">
+              <div className="border-t border-border/50 px-4 py-4 sm:px-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
@@ -416,13 +416,13 @@ export function HeroSection({ query }: HeroSectionProps) {
 
                   {heroProduct && (
                     <div className="shrink-0 text-right">
-                      <p className="font-display text-lg font-bold tabular-nums">
+                      <p className="font-mono text-lg font-bold tabular-nums">
                         {formatPrice(heroProduct.price)}
                       </p>
 
                       {showDiscount &&
                         heroProduct.compareAtPrice && (
-                          <p className="text-xs text-muted-foreground line-through">
+                          <p className="font-mono text-xs text-muted-foreground line-through">
                             {formatPrice(
                               heroProduct.compareAtPrice,
                             )}
@@ -435,12 +435,15 @@ export function HeroSection({ query }: HeroSectionProps) {
             </div>
 
             {/* ======================================================
-                SMALL RATING PANEL
+                SMALL RATING PANEL — FLOATING
             ====================================================== */}
 
             {heroProduct &&
               heroProduct.averageRating > 0 && (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.6, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   className="
                     absolute
                     -bottom-3
@@ -448,16 +451,16 @@ export function HeroSection({ query }: HeroSectionProps) {
                     hidden
                     items-center
                     gap-2
-                    rounded-lg
-                    border
-                    bg-card
+                    rounded-xl
+                    glass-surface
                     px-3
                     py-2
-                    shadow-lg
+                    shadow-glass
+                    dark:shadow-glass-dark
                     sm:flex
                   "
                 >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-warning/10">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-warning/10">
                     <Star
                       className="h-3.5 w-3.5 fill-warning text-warning"
                       aria-hidden
@@ -465,7 +468,7 @@ export function HeroSection({ query }: HeroSectionProps) {
                   </div>
 
                   <div>
-                    <p className="text-xs font-bold">
+                    <p className="font-mono text-xs font-bold">
                       {heroProduct.averageRating.toFixed(1)}
                     </p>
 
@@ -473,12 +476,67 @@ export function HeroSection({ query }: HeroSectionProps) {
                       Customer rating
                     </p>
                   </div>
-                </div>
+                </motion.div>
               )}
           </div>
-        </Reveal>
+        </MotionReveal>
       </div>
     </section>
+  )
+}
+
+/* ================================================================
+   AURORA BACKGROUND — INTERACTIVE
+   CSS aurora blobs + JS-driven pointer-following glow.
+================================================================ */
+
+function AuroraBackground() {
+  const prefersReduced = useReducedMotion()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const pointerRef = useRef<HTMLDivElement>(null)
+  const [pointerVisible, setPointerVisible] = useState(false)
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (prefersReduced) return
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect || !pointerRef.current) return
+      pointerRef.current.style.left = `${e.clientX - rect.left}px`
+      pointerRef.current.style.top = `${e.clientY - rect.top}px`
+      if (!pointerVisible) setPointerVisible(true)
+    },
+    [prefersReduced, pointerVisible],
+  )
+
+  const handleMouseLeave = useCallback(() => {
+    setPointerVisible(false)
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ pointerEvents: 'auto' }}
+    >
+      {/* Static/animated aurora blobs */}
+      <div className="aurora-bg" />
+
+      {/* Subtle dot grid overlay */}
+      <div className="absolute inset-0 dot-grid opacity-30" />
+
+      {/* Interactive pointer glow */}
+      <div
+        ref={pointerRef}
+        className="aurora-pointer"
+        style={{ opacity: pointerVisible ? 1 : 0 }}
+      />
+
+      {/* Top gradient fade for content readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background/80" />
+    </div>
   )
 }
 

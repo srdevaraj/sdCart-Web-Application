@@ -1,6 +1,8 @@
+import { useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Heart, ShoppingCart } from 'lucide-react'
 import { toast } from 'sonner'
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
@@ -30,6 +32,28 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
   const removeFromWishlist = useRemoveFromWishlist()
 
   const outOfStock = product.stockQuantity <= 0
+
+  const prefersReduced = useReducedMotion()
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Parallax tilt on hover
+  const mouseX = useMotionValue(0.5)
+  const mouseY = useMotionValue(0.5)
+  const rotateX = useSpring(useTransform(mouseY, [0, 1], [3, -3]), { stiffness: 300, damping: 30 })
+  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-3, 3]), { stiffness: 300, damping: 30 })
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (prefersReduced) return
+    const rect = cardRef.current?.getBoundingClientRect()
+    if (!rect) return
+    mouseX.set((e.clientX - rect.left) / rect.width)
+    mouseY.set((e.clientY - rect.top) / rect.height)
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0.5)
+    mouseY.set(0.5)
+  }
 
   function handleAddToCart() {
     if (!isAuthed) {
@@ -63,10 +87,24 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
     }
   }
 
+  const MotionWrapper = prefersReduced ? 'article' : motion.article
+
+  const motionProps = prefersReduced
+    ? {}
+    : {
+        ref: cardRef,
+        style: { rotateX, rotateY, transformPerspective: 800 },
+        onMouseMove: handleMouseMove,
+        onMouseLeave: handleMouseLeave,
+        whileHover: { y: -4 },
+        transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+      }
+
   return (
-    <article
+    <MotionWrapper
+      {...(motionProps as any)}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-lg border bg-card shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lift',
+        'group relative flex flex-col overflow-hidden rounded-xl border bg-card card-glow will-change-transform',
         className,
       )}
     >
@@ -78,8 +116,15 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
         <ProductImage
           src={product.imageUrl}
           alt={product.name}
-          className="absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-105"
         />
+
+        {/* Hover overlay glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[hsl(var(--accent-glow)/0.05)] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        />
+
         {outOfStock && (
           <span className="absolute left-2 top-2 rounded-full bg-muted-foreground/90 px-2 py-0.5 text-xs font-semibold text-background">
             Out of stock
@@ -94,7 +139,7 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
         onClick={handleToggleWishlist}
         aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         aria-pressed={isWishlisted}
-        className="absolute right-2 top-2 rounded-full bg-background/90 shadow-sm backdrop-blur"
+        className="absolute right-2 top-2 rounded-full glass-surface shadow-sm transition-transform duration-200 hover:scale-110"
       >
         <Heart className={cn('h-4 w-4', isWishlisted && 'fill-destructive text-destructive')} />
       </Button>
@@ -107,7 +152,7 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
         </h3>
         {rating !== undefined && <RatingStars value={rating} className="pt-0.5" />}
         <div className="mt-auto flex items-center justify-between pt-2">
-          <p className="font-semibold tabular-nums">{formatPrice(product.price)}</p>
+          <p className="font-mono font-semibold tabular-nums">{formatPrice(product.price)}</p>
           <Button
             type="button"
             size="icon-sm"
@@ -115,11 +160,12 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
             onClick={handleAddToCart}
             disabled={outOfStock || addToCart.isPending}
             aria-label={`Add ${product.name} to cart`}
+            className="transition-transform duration-200 hover:scale-105"
           >
             <ShoppingCart aria-hidden />
           </Button>
         </div>
       </div>
-    </article>
+    </MotionWrapper>
   )
 }
