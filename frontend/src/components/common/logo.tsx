@@ -20,7 +20,7 @@ export function Logo({ className, linkTo = '/' }: LogoProps) {
         width={1024}
         height={1024}
         draggable={false}
-        className="h-8 w-8 object-contain"
+        className="h-12 w-12 object-contain"
       />
     </Link>
   )
