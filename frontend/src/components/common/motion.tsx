@@ -13,11 +13,6 @@ import {
    with spring physics and stagger support.
 ================================================================ */
 
-const revealVariants: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-}
-
 interface MotionRevealProps {
   children: ReactNode
   /** Stagger delay in seconds (e.g., 0.06 for 60ms). */

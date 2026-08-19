@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { MotionReveal, MagneticHover } from '@/components/common/motion'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
@@ -118,9 +117,9 @@ export function HeroSection({ query }: HeroSectionProps) {
                 xl:text-[3.8rem]
               "
             >
-              Everything you need.
+              Shop smart.
               <span className="block bg-gradient-to-r from-primary via-[hsl(var(--accent-glow))] to-primary bg-clip-text text-transparent">
-                Nothing you don't.
+                Live better.
               </span>
             </h1>
           </MotionReveal>

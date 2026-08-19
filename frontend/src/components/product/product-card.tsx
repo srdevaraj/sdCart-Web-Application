@@ -87,22 +87,14 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
     }
   }
 
-  const MotionWrapper = prefersReduced ? 'article' : motion.article
-
-  const motionProps = prefersReduced
-    ? {}
-    : {
-        ref: cardRef,
-        style: { rotateX, rotateY, transformPerspective: 800 },
-        onMouseMove: handleMouseMove,
-        onMouseLeave: handleMouseLeave,
-        whileHover: { y: -4 },
-        transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-      }
-
   return (
-    <MotionWrapper
-      {...(motionProps as any)}
+    <motion.article
+      ref={prefersReduced ? undefined : cardRef}
+      style={prefersReduced ? undefined : { rotateX, rotateY, transformPerspective: 800 }}
+      onMouseMove={prefersReduced ? undefined : handleMouseMove}
+      onMouseLeave={prefersReduced ? undefined : handleMouseLeave}
+      whileHover={prefersReduced ? undefined : { y: -4 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-xl border bg-card card-glow will-change-transform',
         className,
@@ -166,6 +158,6 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
           </Button>
         </div>
       </div>
-    </MotionWrapper>
+    </motion.article>
   )
 }

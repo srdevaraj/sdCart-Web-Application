@@ -81,8 +81,8 @@ describe('CartPage', () => {
 
     renderWithProviders(<CartPage />)
 
-    expect(await screen.findByText('Your cart is empty')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Start shopping' })).toBeInTheDocument()
+    expect(await screen.findByText('Your cart is waiting')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Explore products/i })).toBeInTheDocument()
   })
 
   it('updates quantity through the backend and re-renders', async () => {
@@ -121,7 +121,7 @@ describe('CartPage', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Remove Wireless Headphones from cart' }))
 
     await waitFor(() => expect(cartService.removeItem).toHaveBeenCalledWith('item-1'))
-    expect(await screen.findByText('Your cart is empty')).toBeInTheDocument()
+    expect(await screen.findByText('Your cart is waiting')).toBeInTheDocument()
   })
 
   it('applies a valid coupon and shows the discount', async () => {
@@ -138,6 +138,7 @@ describe('CartPage', () => {
     fireEvent.change(await screen.findByLabelText('Coupon code'), { target: { value: 'SAVE20' } })
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
 
-    expect(await screen.findByText('SAVE20 — $20.00 off')).toBeInTheDocument()
+    expect(await screen.findByText('SAVE20')).toBeInTheDocument()
+    expect(screen.getAllByText('−$20.00').length).toBeGreaterThan(0)
   })
 })
