@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormField } from '@/components/common/form-field'
 import { Spinner } from '@/components/common/loading-state'
-import { ProductImage } from '@/components/common/product-image'
 import { ImageUpload } from '@/components/common/image-upload'
 import {
   Select,
@@ -54,8 +53,6 @@ const productSchema = z.object({
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
-
-const ACCEPTED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp,image/gif'
 
 interface ProductFormProps {
   product?: ProductResponse
@@ -130,9 +127,9 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       .filter((file): file is File => file !== null)
     const altTexts = imageRows.map((img) => img.altText?.trim() ?? '')
 
-    // Creating a product still requires at least one image (same as before).
-    if (!product && files.length === 0) {
-      toast.error('Select at least one image file')
+    // Creating a product still requires at least one image.
+    if (!product && imageRows.length === 0) {
+      toast.error('Select or upload at least one image')
       return
     }
 
@@ -163,7 +160,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           // to Cloudinary and removes the replaced assets after saving.
           await updateProduct.mutateAsync({ publicId: product.publicId, payload: basePayload, files, altTexts })
         } else {
-          // No new image — keep the existing images (URL-based JSON, unchanged).
+          // No new local file — save using uploaded/existing image URLs.
           await updateProduct.mutateAsync({
             publicId: product.publicId,
             payload: {
@@ -181,7 +178,23 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         }
         toast.success('Product updated')
       } else {
-        await createProduct.mutateAsync({ payload: basePayload, files, altTexts })
+        if (files.length > 0) {
+          await createProduct.mutateAsync({ payload: basePayload, files, altTexts })
+        } else {
+          await createProduct.mutateAsync({
+            payload: {
+              ...basePayload,
+              images: imageRows
+                .filter((img) => (img.imageUrl ?? '').trim().length > 0)
+                .map((img, i) => ({
+                  imageUrl: (img.imageUrl as string).trim(),
+                  altText: img.altText || undefined,
+                  sortOrder: i,
+                  primary: i === 0,
+                })),
+            },
+          })
+        }
         toast.success('Product created')
       }
       onSuccess?.()
@@ -288,24 +301,19 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       <div className="space-y-3">
         <p className="text-sm font-semibold">Images</p>
         {images.fields.map((field, i) => (
-          <div key={field.id} className="space-y-2 rounded-lg border bg-card p-3">
-            <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-              <div className="flex items-center gap-2">
-                {field.imageUrl ? (
-                  <ProductImage src={field.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-md" />
-                ) : null}
-                <input
-                  type="file"
-                  accept={ACCEPTED_IMAGE_TYPES}
-                  aria-label={`Image ${i + 1} file`}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    setValue(`images.${i}.file`, file ?? undefined)
+          <div key={field.id} className="space-y-3 rounded-lg border bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <ImageUpload
+                  value={watch(`images.${i}.imageUrl`)}
+                  onChange={(url) => {
+                    setValue(`images.${i}.imageUrl`, url ?? '')
+                    setValue(`images.${i}.file`, undefined)
                   }}
-                  className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-primary/90"
+                  label={`Product image ${i + 1}`}
+                  hint="Upload an image (max 5MB)."
                 />
               </div>
-              <Input {...register(`images.${i}.altText`)} placeholder="Alt text" aria-label={`Image ${i + 1} alt text`} />
               <Button
                 type="button"
                 variant="ghost"
@@ -317,11 +325,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
                 <Trash2 />
               </Button>
             </div>
-            {field.imageUrl ? (
-              <p className="text-xs text-muted-foreground">
-                Current image — choose a file above to replace it.
-              </p>
-            ) : null}
+            <Input {...register(`images.${i}.altText`)} placeholder="Alt text (e.g. Front view)" aria-label={`Image ${i + 1} alt text`} />
           </div>
         ))}
         <Button type="button" variant="outline" size="sm" onClick={() => images.append({ altText: '' })}>

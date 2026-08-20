@@ -94,8 +94,13 @@ export function ImageUpload({ value, onChange, label = 'Image', hint }: ImageUpl
                   <input
                     type="file"
                     accept={ACCEPTED_IMAGE_TYPES}
+                    disabled={uploadImage.isPending}
                     className="sr-only"
-                    onChange={(e) => handleFile(e.target.files?.[0])}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      e.target.value = ''
+                      handleFile(file)
+                    }}
                   />
                 </label>
               </p>

@@ -61,7 +61,6 @@ export const adminService = {
       method: 'POST',
       url: '/admin/products',
       data: formData,
-      headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 
@@ -77,7 +76,6 @@ export const adminService = {
       method: 'PUT',
       url: `/admin/products/${publicId}`,
       data: formData,
-      headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 
@@ -171,7 +169,6 @@ export const adminService = {
       method: 'POST',
       url: '/admin/images/upload',
       data: formData,
-      headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 

@@ -9,7 +9,7 @@ export const API_BASE_URL: string =
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 20_000,
+  timeout: 60_000,
 })
 
 /** Send the user to the login page after an unrecoverable auth failure. */
@@ -21,13 +21,16 @@ export function redirectToLogin(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Request interceptor: attach the access token.
+// Request interceptor: attach the access token & clean FormData headers.
 // ---------------------------------------------------------------------------
 
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
   }
   return config
 })
@@ -124,8 +127,10 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
   if (axios.isAxiosError(error)) {
     const data = error.response?.data
     if (data?.message) return data.message
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      return 'The request timed out. Please check your network connection and try again.'
+    }
     if (error.message === 'Network Error') return 'Cannot reach the server. Check your connection and try again.'
-    if (error.code === 'ECONNABORTED') return 'The request timed out. Please try again.'
   }
   if (error instanceof Error && error.message) return error.message
   return fallback
