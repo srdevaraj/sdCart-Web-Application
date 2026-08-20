@@ -84,6 +84,123 @@ const DEFAULT_SLIDES: HeroSlide[] = [
   },
 ]
 
+interface AmbientColors {
+  left: string
+  right: string
+  glow: string
+}
+
+function getProductAmbientColors(slide: HeroSlide): AmbientColors {
+  const categorySlug = slide.product?.category?.slug?.toLowerCase() || ''
+  const categoryName = slide.product?.category?.name?.toLowerCase() || ''
+  const name = (slide.product?.name || slide.titleLine1 || '').toLowerCase()
+
+  if (
+    categorySlug.includes('electr') ||
+    categoryName.includes('electr') ||
+    name.includes('phone') ||
+    name.includes('audio') ||
+    name.includes('laptop') ||
+    name.includes('tech')
+  ) {
+    return {
+      left: 'rgba(59, 130, 246, 0.38)', // Electric Blue
+      right: 'rgba(6, 182, 212, 0.35)', // Bright Cyan
+      glow: 'rgba(59, 130, 246, 0.24)',
+    }
+  }
+
+  if (
+    categorySlug.includes('cloth') ||
+    categorySlug.includes('fashion') ||
+    categoryName.includes('fashion') ||
+    name.includes('wear') ||
+    name.includes('jacket') ||
+    name.includes('shirt')
+  ) {
+    return {
+      left: 'rgba(236, 72, 153, 0.35)', // Rose Pink
+      right: 'rgba(249, 115, 22, 0.30)', // Sunset Orange
+      glow: 'rgba(236, 72, 153, 0.22)',
+    }
+  }
+
+  if (
+    categorySlug.includes('home') ||
+    categorySlug.includes('kitchen') ||
+    categoryName.includes('home')
+  ) {
+    return {
+      left: 'rgba(245, 158, 11, 0.35)', // Warm Amber
+      right: 'rgba(16, 185, 129, 0.30)', // Fresh Emerald
+      glow: 'rgba(245, 158, 11, 0.22)',
+    }
+  }
+
+  if (
+    categorySlug.includes('beauty') ||
+    categoryName.includes('beauty') ||
+    name.includes('care') ||
+    name.includes('cosmetic')
+  ) {
+    return {
+      left: 'rgba(168, 85, 247, 0.38)', // Soft Violet
+      right: 'rgba(244, 63, 94, 0.32)', // Rose Glow
+      glow: 'rgba(168, 85, 247, 0.24)',
+    }
+  }
+
+  if (
+    categorySlug.includes('sport') ||
+    categorySlug.includes('fitness') ||
+    categoryName.includes('sport')
+  ) {
+    return {
+      left: 'rgba(16, 185, 129, 0.38)', // Vibrant Green
+      right: 'rgba(14, 165, 233, 0.32)', // Sky Blue
+      glow: 'rgba(16, 185, 129, 0.24)',
+    }
+  }
+
+  // Slide defaults
+  if (slide.id === 'slide-1') {
+    return {
+      left: 'rgba(59, 130, 246, 0.38)', // Electric Blue
+      right: 'rgba(14, 165, 233, 0.32)', // Sky
+      glow: 'rgba(59, 130, 246, 0.24)',
+    }
+  }
+  if (slide.id === 'slide-2') {
+    return {
+      left: 'rgba(139, 92, 246, 0.38)', // Purple
+      right: 'rgba(6, 182, 212, 0.35)', // Cyan
+      glow: 'rgba(139, 92, 246, 0.24)',
+    }
+  }
+  if (slide.id === 'slide-3') {
+    return {
+      left: 'rgba(245, 158, 11, 0.38)', // Amber
+      right: 'rgba(239, 68, 68, 0.32)', // Coral / Red
+      glow: 'rgba(245, 158, 11, 0.24)',
+    }
+  }
+
+  // Deterministic color generation based on product name/id hash
+  let hash = 0
+  const str = slide.id + (slide.product?.name || '')
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const hue1 = Math.abs(hash % 360)
+  const hue2 = (hue1 + 45) % 360
+
+  return {
+    left: `hsla(${hue1}, 80%, 60%, 0.35)`,
+    right: `hsla(${hue2}, 80%, 60%, 0.32)`,
+    glow: `hsla(${hue1}, 80%, 60%, 0.22)`,
+  }
+}
+
 export function HeroSection({
   query,
   customSlides,
@@ -130,6 +247,7 @@ export function HeroSection({
   const [isDocVisible, setIsDocVisible] = useState(true)
 
   const activeSlide = slides[currentIndex] ?? slides[0]
+  const ambientColors = getProductAmbientColors(activeSlide)
 
   // Track Page Visibility API (Pause when tab is hidden)
   useEffect(() => {
@@ -248,7 +366,7 @@ export function HeroSection({
       {/* ============================================================
           MAIN CAROUSEL CONTAINER
       ============================================================ */}
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-[28.8px] sm:py-[38.4px] lg:py-[48px] sm:max-w-[896px] md:max-w-[1075.2px] lg:max-w-[1433.6px] xl:max-w-[1792px] 2xl:max-w-[1960px]">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 pt-2.5 sm:pt-3.5 lg:pt-4 pb-[28.8px] sm:pb-[38.4px] lg:pb-[48px] sm:max-w-[896px] md:max-w-[1075.2px] lg:max-w-[1433.6px] xl:max-w-[1792px] 2xl:max-w-[1960px]">
         <div className="grid items-center gap-[33.6px] lg:grid-cols-[0.95fr_1.05fr] lg:gap-[56px] xl:gap-[78.4px] min-h-[408px] sm:min-h-[456px] lg:min-h-[504px]">
           {/* ==========================================================
               LEFT CONTENT (STAGGERED ANIMATION)
@@ -446,19 +564,81 @@ export function HeroSection({
                 className="relative mx-auto max-w-[50.4rem]"
               >
                 {/* Ambient glow behind card */}
-                <div
+                <motion.div
+                  key={`card-ambient-${activeSlide.id}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.65 }}
+                  transition={{ duration: 0.6 }}
                   aria-hidden
-                  className="pointer-events-none absolute -inset-6 rounded-3xl bg-gradient-to-br from-primary/20 via-transparent to-[hsl(var(--accent-glow)/0.15)] blur-xl opacity-60"
+                  className="pointer-events-none absolute -inset-6 rounded-3xl blur-2xl transition-all duration-700"
+                  style={{
+                    background: `radial-gradient(ellipse at center, ${ambientColors.glow} 0%, ${ambientColors.left} 35%, transparent 70%)`,
+                  }}
                 />
 
                 {/* Main Product Glass Container */}
                 <div className="glass-surface relative overflow-hidden rounded-2xl shadow-xl border border-border/60">
                   {/* Image Container scaled +20% height & +40% width -> aspect-[56/27] */}
-                  <div className="relative aspect-[56/27] min-h-[264px] sm:min-h-[320px] lg:min-h-[370px] w-full overflow-hidden bg-muted/40 flex items-center justify-center">
+                  <div className="relative aspect-[56/27] min-h-[264px] sm:min-h-[320px] lg:min-h-[370px] w-full overflow-hidden bg-muted/30 flex items-center justify-center">
+                    {/* ======================================================
+                        ANIMATED AMBIENT GLOW (LEFT & RIGHT)
+                    ====================================================== */}
+                    {/* Left ambient glow light */}
+                    <motion.div
+                      key={`ambient-left-${activeSlide.id}`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={
+                        prefersReducedMotion
+                          ? { opacity: 0.65, scale: 1 }
+                          : {
+                              opacity: [0.5, 0.85, 0.5],
+                              scale: [0.92, 1.12, 0.92],
+                              x: [-4, 6, -4],
+                            }
+                      }
+                      transition={{
+                        opacity: { duration: 4.2, repeat: Infinity, ease: 'easeInOut' },
+                        scale: { duration: 5, repeat: Infinity, ease: 'easeInOut' },
+                        x: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
+                        default: { duration: 0.6 },
+                      }}
+                      className="pointer-events-none absolute -left-10 sm:-left-6 top-1/2 -translate-y-1/2 w-40 sm:w-56 lg:w-64 h-40 sm:h-56 lg:h-64 rounded-full blur-2xl sm:blur-3xl"
+                      style={{
+                        background: `radial-gradient(circle, ${ambientColors.left} 0%, ${ambientColors.glow} 40%, transparent 75%)`,
+                      }}
+                      aria-hidden="true"
+                    />
+
+                    {/* Right ambient glow light */}
+                    <motion.div
+                      key={`ambient-right-${activeSlide.id}`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={
+                        prefersReducedMotion
+                          ? { opacity: 0.65, scale: 1 }
+                          : {
+                              opacity: [0.5, 0.85, 0.5],
+                              scale: [1.1, 0.92, 1.1],
+                              x: [4, -6, 4],
+                            }
+                      }
+                      transition={{
+                        opacity: { duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
+                        scale: { duration: 5.4, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
+                        x: { duration: 6.2, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
+                        default: { duration: 0.6 },
+                      }}
+                      className="pointer-events-none absolute -right-10 sm:-right-6 top-1/2 -translate-y-1/2 w-40 sm:w-56 lg:w-64 h-40 sm:h-56 lg:h-64 rounded-full blur-2xl sm:blur-3xl"
+                      style={{
+                        background: `radial-gradient(circle, ${ambientColors.right} 0%, ${ambientColors.glow} 40%, transparent 75%)`,
+                      }}
+                      aria-hidden="true"
+                    />
+
                     {query?.isPending ? (
-                      <div className="skeleton-shimmer h-full w-full" />
+                      <div className="skeleton-shimmer h-full w-full relative z-10" />
                     ) : heroProduct ? (
-                      <div className="h-full w-full flex items-center justify-center overflow-hidden p-2 sm:p-3">
+                      <div className="relative z-10 h-full w-full flex items-center justify-center overflow-hidden p-2 sm:p-3">
                         <motion.div
                           animate={prefersReducedMotion ? {} : { scale: [1, 1.03] }}
                           transition={{ duration: 5, ease: 'linear', repeat: Infinity, repeatType: 'reverse' }}
@@ -471,7 +651,7 @@ export function HeroSection({
                             }
                             alt={heroProduct.name}
                             className="h-full w-full bg-transparent flex items-center justify-center"
-                            imgClassName="object-contain h-full w-full drop-shadow-md transition-transform"
+                            imgClassName="object-contain h-full w-full drop-shadow-[0_10px_25px_rgba(0,0,0,0.15)] transition-transform"
                           />
                         </motion.div>
 
@@ -482,7 +662,9 @@ export function HeroSection({
                         />
                       </div>
                     ) : (
-                      <HeroFallback badgeText={activeSlide.badgeText} />
+                      <div className="relative z-10 h-full w-full">
+                        <HeroFallback badgeText={activeSlide.badgeText} />
+                      </div>
                     )}
 
                     {/* Featured Product Badge */}
