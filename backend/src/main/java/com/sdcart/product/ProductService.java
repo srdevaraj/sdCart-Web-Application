@@ -14,6 +14,7 @@ import com.sdcart.product.dto.ProductResponse;
 import com.sdcart.product.dto.ProductSpecificationRequest;
 import com.sdcart.product.dto.ProductUpdateRequest;
 import com.sdcart.service.CloudinaryService;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,15 +38,18 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final CloudinaryService cloudinaryService;
+    private final EntityManager entityManager;
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
                           BrandRepository brandRepository,
-                          CloudinaryService cloudinaryService) {
+                          CloudinaryService cloudinaryService,
+                          EntityManager entityManager) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.cloudinaryService = cloudinaryService;
+        this.entityManager = entityManager;
     }
 
     // ------------------------------------------------------------------
@@ -312,6 +316,12 @@ public class ProductService {
             return;
         }
         product.getSpecifications().clear();
+        // Flush the pending DELETEs immediately so the orphan rows are removed
+        // from the DB before the new rows are inserted. Without this flush,
+        // Hibernate's default ordering (INSERTs before orphan DELETEs) causes
+        // a transient duplicate-key violation on uk_product_specifications_product_name
+        // whenever a spec with the same name is re-added in the same transaction.
+        entityManager.flush();
         for (int i = 0; i < specifications.size(); i++) {
             ProductSpecificationRequest req = specifications.get(i);
             product.getSpecifications().add(ProductSpecification.builder()
