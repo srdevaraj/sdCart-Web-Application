@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { FormField } from '@/components/common/form-field'
 import { Spinner } from '@/components/common/loading-state'
 import { ProductImage } from '@/components/common/product-image'
+import { ImageUpload } from '@/components/common/image-upload'
 import {
   Select,
   SelectContent,
@@ -45,6 +46,7 @@ const productSchema = z.object({
   stockQuantity: z.coerce.number({ message: 'Stock must be a number' }).min(0, 'Stock cannot be negative'),
   status: z.enum(PRODUCT_STATUSES as [ProductStatus, ...ProductStatus[]]),
   featured: z.boolean(),
+  bannerImage: z.string().max(500).optional().or(z.literal('')),
   categoryId: z.string().optional().or(z.literal('')),
   brandId: z.string().optional().or(z.literal('')),
   images: z.array(imageSchema),
@@ -89,6 +91,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           stockQuantity: product.stockQuantity,
           status: product.status,
           featured: product.featured,
+          bannerImage: product.bannerImage ?? '',
           categoryId: product.category?.publicId ?? '',
           brandId: product.brand?.publicId ?? '',
           images: product.images.map((img) => ({ imageUrl: img.imageUrl, altText: img.altText ?? '' })),
@@ -106,6 +109,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           stockQuantity: 0,
           status: 'ACTIVE',
           featured: false,
+          bannerImage: '',
           categoryId: '',
           brandId: '',
           images: [{ altText: '' }],
@@ -144,6 +148,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       stockQuantity: values.stockQuantity,
       status: values.status,
       featured: values.featured,
+      bannerImage: values.bannerImage ? values.bannerImage.trim() : (product ? '' : undefined),
       categoryId: values.categoryId || undefined,
       brandId: values.brandId || undefined,
       specifications: values.specifications
@@ -265,6 +270,19 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
       </FormField>
       <FormField label="Full description" error={errors.description?.message}>
         <Textarea rows={4} {...register('description')} placeholder="Detailed product description" />
+      </FormField>
+
+      <FormField
+        label="Banner Image (Homepage Hero)"
+        error={errors.bannerImage?.message}
+        hint="Optional landscape/cinematic banner. When set, this product appears in the homepage hero rotation."
+      >
+        <ImageUpload
+          value={watch('bannerImage')}
+          onChange={(url) => setValue('bannerImage', url ?? '')}
+          label="Banner image"
+          hint="Upload a wide banner image. Supported formats: JPG, PNG, WebP, GIF (max 5MB)."
+        />
       </FormField>
 
       <div className="space-y-3">

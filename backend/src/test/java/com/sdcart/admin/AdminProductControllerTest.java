@@ -145,6 +145,7 @@ class AdminProductControllerTest {
                 5,
                 ProductStatus.ACTIVE,
                 false,
+                null,
                 BigDecimal.ZERO,
                 0,
                 null,

@@ -8,9 +8,19 @@ interface ProductImageProps {
   className?: string
   imgClassName?: string
   sizes?: string
+  loading?: 'lazy' | 'eager'
+  fetchPriority?: 'high' | 'low' | 'auto'
 }
 
-export function ProductImage({ src, alt, className, imgClassName, sizes }: ProductImageProps) {
+export function ProductImage({
+  src,
+  alt,
+  className,
+  imgClassName,
+  sizes,
+  loading = 'lazy',
+  fetchPriority,
+}: ProductImageProps) {
   const [failed, setFailed] = useState(false)
   const showPlaceholder = !src || failed
 
@@ -30,7 +40,8 @@ export function ProductImage({ src, alt, className, imgClassName, sizes }: Produ
           src={src}
           alt={alt}
           sizes={sizes}
-          loading="lazy"
+          loading={loading}
+          {...(fetchPriority ? { fetchPriority } : {})}
           onError={() => setFailed(true)}
           className={cn('h-full w-full object-cover', imgClassName)}
         />

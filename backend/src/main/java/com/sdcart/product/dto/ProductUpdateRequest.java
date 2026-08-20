@@ -40,6 +40,9 @@ public record ProductUpdateRequest(
 
         Boolean featured,
 
+        @Size(max = 500, message = "Banner image URL must be at most 500 characters")
+        String bannerImage,
+
         UUID categoryId,
 
         UUID brandId,

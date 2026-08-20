@@ -142,6 +142,7 @@ public class ProductService {
                     .stockQuantity(request.stockQuantity() == null ? 0 : request.stockQuantity())
                     .status(request.status() == null ? ProductStatus.ACTIVE : request.status())
                     .featured(Boolean.TRUE.equals(request.featured()))
+                    .bannerImage(StringUtils.hasText(request.bannerImage()) ? request.bannerImage().trim() : null)
                     .build();
             if (request.categoryId() != null) {
                 product.setCategory(categoryRepository.findByPublicId(request.categoryId())
@@ -223,6 +224,9 @@ public class ProductService {
         if (request.stockQuantity() != null) product.setStockQuantity(request.stockQuantity());
         if (request.status() != null) product.setStatus(request.status());
         if (request.featured() != null) product.setFeatured(request.featured());
+        if (request.bannerImage() != null) {
+            product.setBannerImage(StringUtils.hasText(request.bannerImage()) ? request.bannerImage().trim() : null);
+        }
         if (request.categoryId() != null) {
             product.setCategory(categoryRepository.findByPublicId(request.categoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.categoryId())));

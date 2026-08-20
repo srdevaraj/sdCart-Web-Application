@@ -67,6 +67,9 @@ public class Product extends BaseEntity {
     @Column(name = "is_featured", nullable = false)
     private boolean featured = false;
 
+    @Column(name = "banner_image", length = 500)
+    private String bannerImage;
+
     @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
     @Builder.Default
     private BigDecimal averageRating = BigDecimal.ZERO;

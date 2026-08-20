@@ -91,4 +91,20 @@ describe('HomePage smoke', () => {
     renderWithProviders(<HomePage />)
     expect(await screen.findAllByText('Nothing here yet')).toBeTruthy()
   })
+
+  it('renders curated product in hero when bannerImage is present', async () => {
+    const bannerProduct: ProductResponse = {
+      ...product,
+      publicId: 'p-banner',
+      name: 'Flagship Studio Headphones Pro',
+      bannerImage: 'https://example.com/banner-hero.jpg',
+    }
+    vi.mocked(productService.list).mockResolvedValue(page([bannerProduct]))
+
+    renderWithProviders(<HomePage />)
+
+    expect(await screen.findByText('Flagship Studio')).toBeInTheDocument()
+    expect(screen.getByText('Headphones Pro')).toBeInTheDocument()
+    expect(screen.getByText('Shop product')).toBeInTheDocument()
+  })
 })

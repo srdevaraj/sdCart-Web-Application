@@ -171,6 +171,7 @@ export interface ProductResponse {
   stockQuantity: number
   status: ProductStatus
   featured: boolean
+  bannerImage?: string | null
   averageRating: number
   reviewCount: number
   category: CategorySummaryResponse | null
@@ -201,6 +202,7 @@ export interface ProductCreateRequest {
   stockQuantity?: number
   status?: ProductStatus
   featured?: boolean
+  bannerImage?: string
   categoryId?: string
   brandId?: string
   images?: ProductImageRequest[]
