@@ -248,12 +248,12 @@ export function HeroSection({
       {/* ============================================================
           MAIN CAROUSEL CONTAINER
       ============================================================ */}
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-        <div className="grid items-center gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 xl:gap-14 min-h-[340px] sm:min-h-[380px] lg:min-h-[420px]">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-[28.8px] sm:py-[38.4px] lg:py-[48px] sm:max-w-[896px] md:max-w-[1075.2px] lg:max-w-[1433.6px] xl:max-w-[1792px] 2xl:max-w-[1960px]">
+        <div className="grid items-center gap-[33.6px] lg:grid-cols-[0.95fr_1.05fr] lg:gap-[56px] xl:gap-[78.4px] min-h-[408px] sm:min-h-[456px] lg:min-h-[504px]">
           {/* ==========================================================
               LEFT CONTENT (STAGGERED ANIMATION)
           ========================================================== */}
-          <div className="max-w-xl">
+          <div className="max-w-[50.4rem]">
             <AnimatePresence
               mode="wait"
               custom={direction}
@@ -325,7 +325,7 @@ export function HeroSection({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: 0.12 }}
                   className="
-                    max-w-md
+                    max-w-[39.2rem]
                     text-xs
                     leading-relaxed
                     text-muted-foreground
@@ -404,7 +404,7 @@ export function HeroSection({
                   className="
                     pt-3
                     grid
-                    max-w-lg
+                    max-w-[44.8rem]
                     grid-cols-1
                     gap-2.5
                     border-t
@@ -443,7 +443,7 @@ export function HeroSection({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 1.02, y: -8 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="relative mx-auto max-w-xl"
+                className="relative mx-auto max-w-[50.4rem]"
               >
                 {/* Ambient glow behind card */}
                 <div
@@ -453,16 +453,16 @@ export function HeroSection({
 
                 {/* Main Product Glass Container */}
                 <div className="glass-surface relative overflow-hidden rounded-2xl shadow-xl border border-border/60">
-                  {/* Image Container with Ken Burns Effect */}
-                  <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+                  {/* Image Container scaled +20% height & +40% width -> aspect-[56/27] */}
+                  <div className="relative aspect-[56/27] min-h-[264px] sm:min-h-[320px] lg:min-h-[370px] w-full overflow-hidden bg-muted/40 flex items-center justify-center">
                     {query?.isPending ? (
                       <div className="skeleton-shimmer h-full w-full" />
                     ) : heroProduct ? (
-                      <div className="h-full w-full overflow-hidden">
+                      <div className="h-full w-full flex items-center justify-center overflow-hidden p-2 sm:p-3">
                         <motion.div
                           animate={prefersReducedMotion ? {} : { scale: [1, 1.03] }}
                           transition={{ duration: 5, ease: 'linear', repeat: Infinity, repeatType: 'reverse' }}
-                          className="h-full w-full"
+                          className="h-full w-full flex items-center justify-center"
                         >
                           <ProductImage
                             src={
@@ -470,14 +470,15 @@ export function HeroSection({
                               heroProduct.images[0]?.imageUrl
                             }
                             alt={heroProduct.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full bg-transparent flex items-center justify-center"
+                            imgClassName="object-contain h-full w-full drop-shadow-md transition-transform"
                           />
                         </motion.div>
 
                         {/* Soft Gradient Overlay for text legibility */}
                         <div
                           aria-hidden="true"
-                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"
                         />
                       </div>
                     ) : (
@@ -731,7 +732,7 @@ function TrustItem({
 
 function HeroFallback({ badgeText }: { badgeText?: string }) {
   return (
-    <div className="flex h-full min-h-[220px] flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-card/80 to-muted/40">
+    <div className="flex h-full min-h-[264px] flex-col items-center justify-center px-6 text-center bg-gradient-to-br from-card/80 to-muted/40">
       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 shadow-inner">
         <Sparkles className="h-6 w-6 text-primary animate-pulse" aria-hidden />
       </div>
@@ -740,7 +741,7 @@ function HeroFallback({ badgeText }: { badgeText?: string }) {
         {badgeText ?? 'New arrivals, curated weekly'}
       </p>
 
-      <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+      <p className="mt-1 max-w-[28rem] text-xs text-muted-foreground">
         Hand-picked products landing in the store right now.
       </p>
     </div>
