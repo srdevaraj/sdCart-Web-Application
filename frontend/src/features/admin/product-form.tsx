@@ -217,10 +217,10 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         <FormField label="SKU" error={errors.sku?.message}>
           <Input {...register('sku')} placeholder="SKU-001" />
         </FormField>
-        <FormField label="Price ($)" error={errors.price?.message} required>
+        <FormField label="Price (₹)" error={errors.price?.message} required>
           <Input type="number" step="0.01" min={0} {...register('price')} />
         </FormField>
-        <FormField label="Compare-at price ($)" error={errors.compareAtPrice?.message} hint="Original price for sale display">
+        <FormField label="Compare-at price (₹)" error={errors.compareAtPrice?.message} hint="Original price for sale display">
           <Input type="number" step="0.01" min={0} {...register('compareAtPrice')} />
         </FormField>
         <FormField label="Stock quantity" error={errors.stockQuantity?.message} required>

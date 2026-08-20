@@ -46,7 +46,7 @@ export default function AboutPage() {
       <section className="mt-14 rounded-lg bg-primary p-10 text-center text-primary-foreground">
         <h2 className="font-display text-2xl font-bold">Ready to shop?</h2>
         <p className="mx-auto mt-2 max-w-md text-primary-foreground/80">
-          Browse thousands of products with free shipping over $50.
+          Browse thousands of products with free shipping over ₹50.
         </p>
         <Button asChild size="lg" variant="secondary" className="mt-6">
           <Link to="/products">Start shopping</Link>

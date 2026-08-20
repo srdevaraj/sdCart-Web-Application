@@ -72,7 +72,7 @@ describe('CartPage', () => {
     renderWithProviders(<CartPage />)
 
     expect(await screen.findByText('Wireless Headphones')).toBeInTheDocument()
-    expect(screen.getAllByText('$499.98').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('₹499.98').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Proceed to checkout/ })).toBeInTheDocument()
   })
 
@@ -106,7 +106,7 @@ describe('CartPage', () => {
     await waitFor(() =>
       expect(cartService.updateItem).toHaveBeenCalledWith('item-1', { quantity: 3 }),
     )
-    await waitFor(() => expect(screen.getAllByText('$749.97').length).toBeGreaterThan(0))
+    await waitFor(() => expect(screen.getAllByText('₹749.97').length).toBeGreaterThan(0))
   })
 
   it('removes an item when requested', async () => {
@@ -139,6 +139,6 @@ describe('CartPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
 
     expect(await screen.findByText('SAVE20')).toBeInTheDocument()
-    expect(screen.getAllByText('−$20.00').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('−₹20.00').length).toBeGreaterThan(0)
   })
 })

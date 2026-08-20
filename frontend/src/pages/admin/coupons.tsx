@@ -282,13 +282,13 @@ function CouponForm({ coupon, onSuccess }: { coupon?: CouponResponse; onSuccess:
             </SelectContent>
           </Select>
         </FormField>
-        <FormField label={watch('type') === 'PERCENTAGE' ? 'Discount %' : 'Discount ($)'} error={errors.value?.message} required>
+        <FormField label={watch('type') === 'PERCENTAGE' ? 'Discount %' : 'Discount (₹)'} error={errors.value?.message} required>
           <Input type="number" step="0.01" min={0.01} {...register('value')} />
         </FormField>
-        <FormField label="Min order amount ($)" error={errors.minOrderAmount?.message}>
+        <FormField label="Min order amount (₹)" error={errors.minOrderAmount?.message}>
           <Input type="number" step="0.01" min={0} {...register('minOrderAmount')} />
         </FormField>
-        <FormField label="Max discount ($)" error={errors.maxDiscountAmount?.message} hint="Optional — for percentage coupons">
+        <FormField label="Max discount (₹)" error={errors.maxDiscountAmount?.message} hint="Optional — for percentage coupons">
           <Input type="number" step="0.01" min={0} {...register('maxDiscountAmount')} />
         </FormField>
         <FormField label="Max usages" error={errors.maxUsages?.message}>
@@ -305,7 +305,7 @@ function CouponForm({ coupon, onSuccess }: { coupon?: CouponResponse; onSuccess:
         </FormField>
       </div>
       <FormField label="Description" error={errors.description?.message}>
-        <Input {...register('description')} placeholder="e.g. 10% off first order over $50" />
+        <Input {...register('description')} placeholder="e.g. 10% off first order over ₹50" />
       </FormField>
       <label className="flex items-center gap-2 text-sm">
         <Checkbox checked={watch('active')} onCheckedChange={(checked) => setValue('active', checked === true)} />

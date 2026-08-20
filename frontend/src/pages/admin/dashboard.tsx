@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   AlertTriangle,
   ArrowRight,
-  DollarSign,
+  IndianRupee,
   Package,
   ShoppingCart,
   Users,
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
       icon: AlertTriangle,
       to: '/admin/orders?status=PENDING',
     },
-    { label: 'Revenue (recent)', value: formatPrice(revenue), icon: DollarSign },
+    { label: 'Revenue (recent)', value: formatPrice(revenue), icon: IndianRupee },
   ]
 
   if (products.isPending || users.isPending || orders.isPending) {

@@ -260,7 +260,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="grid gap-3 pt-2 text-sm text-muted-foreground sm:grid-cols-2">
-            <p className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" aria-hidden /> Free shipping over $50</p>
+            <p className="flex items-center gap-2"><Truck className="h-4 w-4 text-primary" aria-hidden /> Free shipping over ₹50</p>
             <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" aria-hidden /> 30-day returns</p>
           </div>
         </div>

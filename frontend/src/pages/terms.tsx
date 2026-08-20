@@ -22,7 +22,7 @@ export default function TermsPage() {
           <p>
             All orders are subject to acceptance and availability. We reserve the right to refuse or cancel an
             order for reasons including but not limited to pricing errors, insufficient stock, or suspected
-            fraud. Prices are displayed in USD and include applicable taxes unless stated otherwise.
+            fraud. Prices are displayed in INR and include applicable taxes unless stated otherwise.
           </p>
         </Section>
         <Section title="4. Shipping and delivery">

@@ -57,7 +57,7 @@ export function PromoSection() {
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-white/80">
               Discover selected products with exclusive savings — use the code below at checkout for 10% off
-              orders over $50.
+              orders over ₹50.
             </p>
 
             {/* Copyable coupon code */}
@@ -68,7 +68,7 @@ export function PromoSection() {
               aria-label="Copy coupon code WELCOME10"
             >
               <span className="font-mono text-sm font-bold tracking-[0.2em] text-white">WELCOME10</span>
-              <span className="text-xs text-white/70">· 10% off over $50</span>
+              <span className="text-xs text-white/70">· 10% off over ₹50</span>
               {copied ? (
                 <Check className="h-3.5 w-3.5 text-emerald-300" aria-hidden />
               ) : (

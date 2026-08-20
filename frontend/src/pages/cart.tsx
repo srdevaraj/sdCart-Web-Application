@@ -456,7 +456,7 @@ export default function CartPage() {
                       <strong className="font-semibold text-foreground">
                         WELCOME10
                       </strong>{' '}
-                      for 10% off orders over $50.
+                      for 10% off orders over ₹50.
                     </p>
                   )}
                 </div>

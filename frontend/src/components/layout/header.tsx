@@ -111,7 +111,7 @@ export function Header() {
               <span className="text-white/90">
                 Free shipping on orders over{' '}
                 <span className="announcement-gradient-text font-bold">
-                  $50
+                  ₹50
                 </span>
               </span>
 
@@ -144,7 +144,7 @@ export function Header() {
               <span className="text-white/90">
                 Free shipping on orders over{' '}
                 <span className="announcement-gradient-text font-bold">
-                  $50
+                  ₹50
                 </span>
               </span>
 
@@ -177,7 +177,7 @@ export function Header() {
               <span className="text-white/90">
                 Free shipping on orders over{' '}
                 <span className="announcement-gradient-text font-bold">
-                  $50
+                  ₹50
                 </span>
               </span>
 

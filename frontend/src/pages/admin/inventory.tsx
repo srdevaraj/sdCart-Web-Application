@@ -12,6 +12,7 @@ import { ProductForm } from '@/features/admin/product-form'
 import { useAdminProducts } from '@/features/admin/hooks'
 import { useDebounce } from '@/hooks/use-debounce'
 import type { ProductResponse } from '@/types'
+import { formatPrice } from '@/utils/format'
 
 export default function AdminInventoryPage() {
   const [page, setPage] = useState(0)
@@ -90,7 +91,7 @@ export default function AdminInventoryPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{product.sku ?? '—'}</td>
-                      <td className="px-4 py-3 tabular-nums">{`$${Number(product.price).toFixed(2)}`}</td>
+                      <td className="px-4 py-3 tabular-nums">{formatPrice(product.price)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-24 overflow-hidden rounded-full bg-muted">

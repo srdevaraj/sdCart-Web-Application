@@ -4,9 +4,9 @@ export function formatPrice(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return '—'
   const amount = typeof value === 'string' ? Number(value) : value
   if (Number.isNaN(amount)) return '—'
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(amount)
 }
 

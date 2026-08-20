@@ -78,7 +78,7 @@ describe('HomePage smoke', () => {
     expect(screen.getByText('Live better.')).toBeInTheDocument()
     expect(await screen.findByText('Electronics')).toBeInTheDocument()
     expect(await screen.findAllByText('Wireless Headphones')).toBeTruthy()
-    expect(screen.getAllByText('$249.99').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('₹249.99').length).toBeGreaterThan(0)
     expect(screen.getByText('WELCOME10')).toBeInTheDocument()
     expect(screen.getByText('A store designed around you')).toBeInTheDocument()
     // All four product queries + categories are issued exactly once each.

@@ -50,7 +50,7 @@ const VALUE_PROPS = [
   {
     icon: Truck,
     title: 'Free Fast Shipping',
-    desc: 'On all orders over $50',
+    desc: 'On all orders over ₹50',
     color: 'from-blue-500/20 to-cyan-500/20 text-blue-400',
   },
   {

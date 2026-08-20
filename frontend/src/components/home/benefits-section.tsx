@@ -3,7 +3,7 @@ import { SectionHeading } from '@/components/common/section-heading'
 import { MotionReveal, StaggerContainer, StaggerItem } from '@/components/common/motion'
 
 const BENEFITS = [
-  { icon: Truck, title: 'Fast delivery', text: 'On all orders over $50, delivered in 2–5 business days.' },
+  { icon: Truck, title: 'Fast delivery', text: 'On all orders over ₹50, delivered in 2–5 business days.' },
   { icon: RefreshCcw, title: 'Easy returns', text: '30-day hassle-free returns on every purchase.' },
   { icon: ShieldCheck, title: 'Secure checkout', text: 'Encrypted payments and buyer protection.' },
   { icon: CreditCard, title: 'Flexible payment', text: 'Cards, PayPal and cash on delivery available.' },

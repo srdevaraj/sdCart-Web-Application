@@ -29,9 +29,9 @@ export default function AdminSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <SettingRow label="Store name" value="sdCart" />
-            <SettingRow label="Currency" value="USD ($)" />
-            <SettingRow label="Free shipping threshold" value="$50.00" />
-            <SettingRow label="Flat shipping fee" value="$5.00 (below threshold)" />
+            <SettingRow label="Currency" value="INR (₹)" />
+            <SettingRow label="Free shipping threshold" value="₹50.00" />
+            <SettingRow label="Flat shipping fee" value="₹5.00 (below threshold)" />
             <SettingRow label="Sales tax" value="0% (configurable)" />
             <SettingRow label="Payment gateway" value="Mock (Stripe-ready)" />
             <SettingRow label="Email provider" value="Console (SMTP-ready)" />

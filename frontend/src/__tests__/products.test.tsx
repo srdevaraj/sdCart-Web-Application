@@ -65,7 +65,7 @@ describe('ProductsPage', () => {
     renderWithProviders(<ProductsPage />)
 
     expect(await screen.findByText('Wireless Headphones')).toBeInTheDocument()
-    expect(screen.getByText('$249.99')).toBeInTheDocument()
+    expect(screen.getByText('₹249.99')).toBeInTheDocument()
     // The list request is server-side with the default sort.
     expect(productService.list).toHaveBeenCalledWith(expect.objectContaining({ size: 12 }))
   })
