@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { adminService } from '@/services/admin'
+import { dashboardService } from '@/services/dashboard'
 import type {
   BrandRequest,
   CategoryRequest,
@@ -241,3 +242,41 @@ export function useUploadImage() {
     mutationFn: (file: File) => adminService.uploadImage(file),
   })
 }
+
+// ---------------------------------------------------------------------------
+// Dashboard analytics — read-only hooks
+// ---------------------------------------------------------------------------
+
+export function useRevenueYearly(years = 5) {
+  return useQuery({
+    queryKey: ['admin', 'dashboard', 'revenue', 'yearly', years],
+    queryFn: () => dashboardService.getRevenueYearly(years),
+    staleTime: 5 * 60 * 1000, // 5 min — aggregate data changes infrequently
+  })
+}
+
+export function useRevenueMonthly(year: number | null) {
+  return useQuery({
+    queryKey: ['admin', 'dashboard', 'revenue', 'monthly', year],
+    queryFn: () => dashboardService.getRevenueMonthly(year as number),
+    enabled: year !== null,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function usePaymentStatusSummary() {
+  return useQuery({
+    queryKey: ['admin', 'dashboard', 'payments', 'status-summary'],
+    queryFn: () => dashboardService.getPaymentStatusSummary(),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useOrderStatusSummary() {
+  return useQuery({
+    queryKey: ['admin', 'dashboard', 'orders', 'status-summary'],
+    queryFn: () => dashboardService.getOrderStatusSummary(),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+

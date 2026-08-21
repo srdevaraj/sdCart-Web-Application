@@ -14,6 +14,10 @@ import { ErrorState } from '@/components/common/error-state'
 import { OrderStatusBadge } from '@/components/common/status-badge'
 import { useAdminOrders, useAdminProducts, useAdminUsers } from '@/features/admin/hooks'
 import { formatDate, formatPrice } from '@/utils/format'
+import { RevenueChart } from '@/components/admin/charts/revenue-chart'
+import { PaymentDonutChart } from '@/components/admin/charts/payment-donut-chart'
+import { OrderStatusChart } from '@/components/admin/charts/order-status-chart'
+
 
 export default function AdminDashboardPage() {
   const products = useAdminProducts(undefined, undefined, 0, 100)
@@ -167,6 +171,28 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Analytics section — three charts added below the existing content   */}
+      {/* ------------------------------------------------------------------ */}
+      <section aria-labelledby="analytics-heading">
+        <h2 id="analytics-heading" className="sr-only">
+          Analytics
+        </h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {/* Revenue — spans 2 cols on desktop */}
+          <div className="lg:col-span-2">
+            <RevenueChart />
+          </div>
+
+          {/* Payment donut + Order status stacked in the right col */}
+          <div className="flex flex-col gap-4">
+            <PaymentDonutChart />
+            <OrderStatusChart />
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
+

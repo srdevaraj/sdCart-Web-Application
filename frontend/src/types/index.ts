@@ -501,3 +501,31 @@ export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
   INACTIVE: 'Inactive',
   DRAFT: 'Draft',
 }
+
+// ---------------------------------------------------------------------------
+// Dashboard Analytics
+// ---------------------------------------------------------------------------
+
+/** Mirrors {@code YearlyRevenueDto} from the backend. */
+export interface YearlyRevenue {
+  year: number
+  totalRevenue: string
+}
+
+/** Mirrors {@code MonthlyRevenueDto} from the backend. */
+export interface MonthlyRevenue {
+  month: number
+  monthName: string
+  revenue: string
+  percentOfYear: number
+}
+
+/**
+ * Mirrors {@code StatusCountDto} from the backend.
+ * Used for both order-status and payment-status summaries.
+ */
+export interface StatusCount {
+  status: string
+  count: number
+  percentage: number
+}
