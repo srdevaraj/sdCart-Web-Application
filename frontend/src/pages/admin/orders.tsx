@@ -72,41 +72,47 @@ export default function AdminOrdersPage() {
         <EmptyState title="No orders found" description="Orders will appear here once customers place them." />
       ) : (
         <>
-          <div className="overflow-x-auto rounded-lg border bg-card">
+          <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
             <table className="w-full min-w-[760px] text-sm">
-              <thead className="border-b bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3">Order</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Items</th>
-                  <th className="px-4 py-3">Total</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Update status</th>
+                  <th className="px-4 py-3.5 text-left">Order</th>
+                  <th className="px-4 py-3.5 text-left">Date</th>
+                  <th className="px-4 py-3.5 text-left">Items</th>
+                  <th className="px-4 py-3.5 text-right">Total</th>
+                  <th className="px-4 py-3.5 text-center">Status</th>
+                  <th className="px-4 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {orders.content.map((order) => {
                   const next = NEXT_STATUSES[order.status] ?? []
                   return (
-                    <tr key={order.publicId} className="hover:bg-muted/30">
-                      <td className="px-4 py-3">
+                    <tr key={order.publicId} className="transition-colors hover:bg-muted/30">
+                      <td className="whitespace-nowrap px-4 py-3.5 align-middle">
                         <Link
                           to={`/admin/orders/${order.publicId}`}
-                          className="font-mono font-medium hover:text-primary"
+                          className="font-mono text-sm font-semibold text-foreground transition-colors hover:text-primary"
                         >
                           {order.orderNumber}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="whitespace-nowrap px-4 py-3.5 align-middle text-xs text-muted-foreground">
+                        {formatDate(order.createdAt)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 align-middle text-xs text-muted-foreground">
                         {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
                       </td>
-                      <td className="px-4 py-3 font-medium tabular-nums">{formatPrice(order.totalAmount)}</td>
-                      <td className="px-4 py-3">
-                        <OrderStatusBadge status={order.status} />
+                      <td className="whitespace-nowrap px-4 py-3.5 text-right align-middle font-semibold tabular-nums">
+                        {formatPrice(order.totalAmount)}
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1">
+                      <td className="whitespace-nowrap px-4 py-3.5 align-middle">
+                        <div className="flex justify-center">
+                          <OrderStatusBadge status={order.status} />
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 text-right align-middle">
+                        <div className="flex items-center justify-end gap-1.5">
                           {next.map((target) => (
                             <Button
                               key={target}

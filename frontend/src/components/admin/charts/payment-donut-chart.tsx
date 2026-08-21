@@ -11,7 +11,7 @@ const STATUS_COLORS: Record<string, string> = {
   COMPLETED: 'hsl(152, 55%, 38%)',  // --success (teal-green)
   PENDING: 'hsl(35, 92%, 45%)',     // --warning (amber)
   FAILED: 'hsl(0, 72%, 51%)',       // --destructive (red)
-  REFUNDED: 'hsl(240, 4%, 62%)',    // muted-foreground (gray)
+  REFUNDED: 'hsl(262, 80%, 56%)',    // indigo/purple
 }
 
 const STATUS_LABELS: Record<string, string> = {

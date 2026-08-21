@@ -18,6 +18,7 @@ import {
   OrderStatusBadge,
   PaymentStatusBadge,
 } from '@/components/common/status-badge'
+import { OrderStatusStepper } from '@/components/common/order-status-stepper'
 import { ProductImage } from '@/components/common/product-image'
 import { Spinner } from '@/components/common/loading-state'
 import { Reveal } from '@/components/common/reveal'
@@ -136,6 +137,15 @@ export default function AdminOrderDetailPage() {
             )}
           </div>
         </section>
+      </Reveal>
+
+      {/* Stepper tracking */}
+      <Reveal delay={90}>
+        <OrderStatusStepper
+          status={order.status}
+          createdAt={order.createdAt}
+          updatedAt={order.updatedAt}
+        />
       </Reveal>
 
       {/* Main content */}

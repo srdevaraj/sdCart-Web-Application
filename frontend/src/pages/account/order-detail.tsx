@@ -4,7 +4,6 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronRight,
-  CircleDot,
   Clock3,
   CreditCard,
   MapPin,
@@ -25,6 +24,7 @@ import {
   OrderStatusBadge,
   PaymentStatusBadge,
 } from '@/components/common/status-badge'
+import { OrderStatusStepper } from '@/components/common/order-status-stepper'
 import { Spinner } from '@/components/common/loading-state'
 import { ProductImage } from '@/components/common/product-image'
 import { Reveal } from '@/components/common/reveal'
@@ -160,60 +160,12 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Order progress visual */}
-            <div className="mt-8 rounded-2xl border bg-background/50 p-4 backdrop-blur-sm sm:p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CircleDot className="h-4 w-4 text-primary" />
-
-                  <span className="text-xs font-semibold">
-                    Order status
-                  </span>
-                </div>
-
-                <span className="text-xs font-medium text-muted-foreground">
-                  {order.status}
-                </span>
-              </div>
-
-              <div className="mt-4 flex items-center">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-
-                <div className="h-px flex-1 bg-gradient-to-r from-primary/40 to-border" />
-
-                <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
-                    order.status === 'CANCELLED'
-                      ? 'border-destructive/30 bg-destructive/10 text-destructive'
-                      : 'border-primary/30 bg-primary/10 text-primary'
-                  }`}
-                >
-                  {order.status === 'CANCELLED' ? (
-                    <CircleDot className="h-4 w-4" />
-                  ) : (
-                    <Truck className="h-4 w-4" />
-                  )}
-                </div>
-
-                <div className="h-px flex-1 bg-border" />
-
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-muted/40 text-muted-foreground">
-                  <ShoppingBag className="h-4 w-4" />
-                </div>
-              </div>
-
-              <div className="mt-2 grid grid-cols-3 text-[10px] font-medium text-muted-foreground">
-                <span>Placed</span>
-
-                <span className="text-center">
-                  Processing
-                </span>
-
-                <span className="text-right">
-                  Completed
-                </span>
-              </div>
+            <div className="mt-8">
+              <OrderStatusStepper
+                status={order.status}
+                createdAt={order.createdAt}
+                updatedAt={order.updatedAt}
+              />
             </div>
           </div>
         </section>

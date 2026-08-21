@@ -31,7 +31,7 @@ function buildBuckets(data: StatusCount[]): Bucket[] {
 
   return [
     { label: 'Delivered', count: delivered, fill: 'hsl(152, 55%, 38%)' },   // --success
-    { label: 'In Progress', count: inProgress, fill: 'hsl(35, 92%, 45%)' }, // --warning
+    { label: 'Pending', count: inProgress, fill: 'hsl(35, 92%, 45%)' },    // --warning
     { label: 'Cancelled', count: cancelled, fill: 'hsl(0, 72%, 51%)' },     // --destructive
   ]
 }
