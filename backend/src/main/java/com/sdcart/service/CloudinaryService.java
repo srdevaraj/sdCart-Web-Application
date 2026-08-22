@@ -80,9 +80,19 @@ public class CloudinaryService {
         if (files == null || files.isEmpty()) {
             return List.of();
         }
+        for (MultipartFile file : files) {
+            validateFile(file);
+        }
         if (!isConfigured()) {
-            throw new BusinessException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Image upload is temporarily unavailable. Please try again later.");
+            log.info("Cloudinary credentials unconfigured — using dev image upload fallback for {} files", files.size());
+            List<UploadedImage> mockUploads = new ArrayList<>(files.size());
+            for (MultipartFile file : files) {
+                String safeName = safeFilename(file.getOriginalFilename());
+                String mockPublicId = PRODUCTS_FOLDER + "/dev_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+                String mockUrl = "https://placehold.co/1200x600/1e293b/ffffff.png?text=" + safeName;
+                mockUploads.add(new UploadedImage(mockUrl, mockPublicId));
+            }
+            return mockUploads;
         }
         List<UploadedImage> uploaded = new ArrayList<>(files.size());
         try {

@@ -65,7 +65,7 @@ class CloudinaryServiceTest {
     }
 
     @Test
-    void upload_rejectsRequest_whenNotConfigured() {
+    void upload_returnsDevFallback_whenNotConfigured() {
         AppProperties appProperties = new AppProperties(
                 null, null, null,
                 new AppProperties.Cloudinary("", "", ""),
@@ -73,10 +73,9 @@ class CloudinaryServiceTest {
         CloudinaryService unconfigured = new CloudinaryService(cloudinary, appProperties);
         MockMultipartFile file = image("photo.png", "image/png");
 
-        assertThatThrownBy(() -> unconfigured.uploadProductImages(List.of(file), null))
-                .isInstanceOf(BusinessException.class)
-                .extracting(e -> ((BusinessException) e).getStatus())
-                .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        List<CloudinaryService.UploadedImage> uploaded = unconfigured.uploadProductImages(List.of(file), null);
+        assertThat(uploaded).hasSize(1);
+        assertThat(uploaded.get(0).secureUrl()).contains("placehold.co");
     }
 
     @Test

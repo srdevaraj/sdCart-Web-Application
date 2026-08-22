@@ -86,7 +86,10 @@ export function useCreateProduct() {
       }
       return adminService.createProduct(input.payload)
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
   })
 }
 
@@ -104,7 +107,10 @@ export function useUpdateProduct() {
       }
       return adminService.updateProduct(input.publicId, input.payload)
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
   })
 }
 
