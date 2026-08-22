@@ -40,6 +40,11 @@ public class ProductController {
                 category, brand, q, minPrice, maxPrice, inStock, featured, pageable)));
     }
 
+    @GetMapping("/banners")
+    public ResponseEntity<ApiResponse<java.util.List<ProductResponse>>> listBanners() {
+        return ResponseEntity.ok(ApiResponse.ok(productService.listBannerProducts()));
+    }
+
     @GetMapping("/{publicId}")
     public ResponseEntity<ApiResponse<ProductResponse>> get(@PathVariable UUID publicId) {
         return ResponseEntity.ok(ApiResponse.ok(productService.getProduct(publicId)));

@@ -92,6 +92,14 @@ public class ProductService {
         return PageResponse.from(products, ProductResponse::from);
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductResponse> listBannerProducts() {
+        return productRepository.findByStatusAndBannerImageIsNotNull(ProductStatus.ACTIVE).stream()
+                .filter(p -> p.getBannerImage() != null && !p.getBannerImage().trim().isEmpty())
+                .map(ProductResponse::from)
+                .toList();
+    }
+
     // ------------------------------------------------------------------
     // Admin operations
     // ------------------------------------------------------------------

@@ -17,6 +17,13 @@ export function useProducts(params: ProductQuery) {
   })
 }
 
+export function useBannerProducts() {
+  return useQuery({
+    queryKey: ['products', 'banners'],
+    queryFn: () => productService.listBanners(),
+  })
+}
+
 export function useProduct(publicId: string | undefined) {
   return useQuery({
     queryKey: productKeys.detail(publicId ?? ''),

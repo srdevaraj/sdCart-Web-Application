@@ -26,4 +26,8 @@ export const productService = {
   async get(publicId: string): Promise<ProductResponse> {
     return request<ProductResponse>({ method: 'GET', url: `/products/${publicId}` })
   },
+
+  async listBanners(): Promise<ProductResponse[]> {
+    return request<ProductResponse[]>({ method: 'GET', url: '/products/banners' })
+  },
 }

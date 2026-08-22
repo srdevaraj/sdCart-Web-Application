@@ -16,6 +16,7 @@ import { MagneticHover } from '@/components/common/motion'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
 import { formatPrice } from '@/utils/format'
+import { useBannerProducts } from '@/features/products/hooks'
 import type { PageResponse } from '@/types/api'
 import type { ProductResponse } from '@/types'
 
@@ -244,17 +245,27 @@ export function HeroSection({
   const headingId = useId()
   const sectionRef = useRef<HTMLElement>(null)
 
-  // 1. Filter products that have a dedicated admin-configured bannerImage
-  const eligibleProducts =
-    query?.data?.content?.filter(
-      (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
-    ) ?? []
+  // Dedicated query fetching all products that have an admin-uploaded banner image
+  const bannerQuery = useBannerProducts()
 
-  // 2. Build slide models: Custom slides -> Admin curated banner products -> Fallback slides
+  // Use dedicated banner query products, falling back to query prop if provided
+  const bannerProducts =
+    bannerQuery.data && bannerQuery.data.length > 0
+      ? bannerQuery.data
+      : query?.data?.content?.filter(
+          (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
+        ) ?? []
+
+  // 1. Filter products that have a dedicated admin-configured bannerImage
+  const eligibleProducts = bannerProducts.filter(
+    (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
+  )
+
+  // 2. Build slide models: Custom slides -> Admin curated banner products (all items) -> Fallback slides
   const slides: HeroSlide[] = customSlides?.length
     ? customSlides
     : eligibleProducts.length > 0
-    ? eligibleProducts.slice(0, 5).map((product, idx) => {
+    ? eligibleProducts.map((product, idx) => {
         const words = product.name.trim().split(/\s+/)
         const titleLine1 = words.slice(0, Math.min(2, Math.ceil(words.length / 2))).join(' ')
         const titleLine2 = words.slice(Math.min(2, Math.ceil(words.length / 2))).join(' ') || 'Flagship'
@@ -660,7 +671,7 @@ export function HeroSection({
                 <HeroBannerCard
                   slide={activeSlide}
                   ambientColors={ambientColors}
-                  isPending={query?.isPending}
+                  isPending={bannerQuery.isPending || query?.isPending}
                   prefersReducedMotion={Boolean(prefersReducedMotion)}
                 />
               </motion.div>

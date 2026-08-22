@@ -57,6 +57,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = {"images", "category", "brand"})
     Page<Product> findByBrandId(Long brandId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"images", "category", "brand"})
+    List<Product> findByStatusAndBannerImageIsNotNull(ProductStatus status);
+
     /**
      * Locks the product rows so concurrent checkouts cannot oversell stock.
      * The returned instances are the same managed entities already referenced
