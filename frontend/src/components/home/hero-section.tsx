@@ -24,8 +24,8 @@ import type { ProductResponse } from '@/types'
    Production-ready easing curves & GPU-accelerated motion timing.
 ================================================================ */
 
-/** Default auto-rotation interval in milliseconds (3 seconds) */
-const DEFAULT_AUTO_ROTATE_MS = 3000
+/** Default auto-rotation interval in milliseconds (4 seconds) */
+const DEFAULT_AUTO_ROTATE_MS = 4000
 
 /** Snappy cubic-bezier easing curve for flagship UI motion */
 const TRANSITION_EASE = [0.16, 1, 0.3, 1] as const
@@ -291,9 +291,19 @@ export function HeroSection({
   const totalSlides = slides.length
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState<number>(1) // 1 = next, -1 = prev
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [, setIsAnimating] = useState(false)
   const [isDocVisible, setIsDocVisible] = useState(true)
   const [touchStart, setTouchStart] = useState<number | null>(null)
+
+  const isAnimatingRef = useRef(false)
+  const animTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clamp currentIndex if slides array length changes
+  useEffect(() => {
+    if (currentIndex >= totalSlides && totalSlides > 0) {
+      setCurrentIndex(0)
+    }
+  }, [totalSlides, currentIndex])
 
   const activeSlide = slides[currentIndex] ?? slides[0]
   const ambientColors = getSlideAmbientColors(activeSlide)
@@ -306,32 +316,49 @@ export function HeroSection({
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
     }
   }, [])
 
-  // Navigation handlers with debounce guard
-  const goToNext = useCallback(() => {
-    if (isAnimating || totalSlides <= 1) return
+  const startAnimGuard = useCallback(() => {
     setIsAnimating(true)
+    isAnimatingRef.current = true
+    if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
+    animTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false)
+      isAnimatingRef.current = false
+    }, SLIDE_DURATION_S * 1000 + 50)
+  }, [])
+
+  const finishAnim = useCallback(() => {
+    if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
+    setIsAnimating(false)
+    isAnimatingRef.current = false
+  }, [])
+
+  // Navigation handlers with stable ref guard
+  const goToNext = useCallback(() => {
+    if (isAnimatingRef.current || totalSlides <= 1) return
+    startAnimGuard()
     setDirection(1)
     setCurrentIndex((prev) => (prev + 1) % totalSlides)
-  }, [isAnimating, totalSlides])
+  }, [totalSlides, startAnimGuard])
 
   const goToPrev = useCallback(() => {
-    if (isAnimating || totalSlides <= 1) return
-    setIsAnimating(true)
+    if (isAnimatingRef.current || totalSlides <= 1) return
+    startAnimGuard()
     setDirection(-1)
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }, [isAnimating, totalSlides])
+  }, [totalSlides, startAnimGuard])
 
   const goToIndex = useCallback(
     (index: number) => {
-      if (isAnimating || index === currentIndex || totalSlides <= 1) return
-      setIsAnimating(true)
+      if (isAnimatingRef.current || index === currentIndex || totalSlides <= 1) return
+      startAnimGuard()
       setDirection(index > currentIndex ? 1 : -1)
       setCurrentIndex(index)
     },
-    [currentIndex, isAnimating, totalSlides],
+    [currentIndex, totalSlides, startAnimGuard],
   )
 
   // Auto-rotation timer logic (runs continuously on 3s interval, respects reduced motion & tab visibility)
@@ -419,7 +446,7 @@ export function HeroSection({
             <AnimatePresence
               mode="wait"
               custom={direction}
-              onExitComplete={() => setIsAnimating(false)}
+              onExitComplete={finishAnim}
             >
               <motion.div
                 key={activeSlide.id}
