@@ -132,6 +132,17 @@ class AdminProductControllerTest {
         verify(productService).updateProduct(eq(publicId), any(ProductUpdateRequest.class));
     }
 
+    @Test
+    void listBanners_returnsBannerProducts() throws Exception {
+        when(productService.listBannerProductsAdmin()).thenReturn(List.of(response()));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/v1/admin/products/banners"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].name").value("Widget"));
+
+        verify(productService).listBannerProductsAdmin();
+    }
+
     private ProductResponse response() {
         return new ProductResponse(
                 UUID.randomUUID(),

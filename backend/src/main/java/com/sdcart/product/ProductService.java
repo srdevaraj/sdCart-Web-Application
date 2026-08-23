@@ -105,6 +105,14 @@ public class ProductService {
     // ------------------------------------------------------------------
 
     @Transactional(readOnly = true)
+    public List<ProductResponse> listBannerProductsAdmin() {
+        return productRepository.findByBannerImageIsNotNull().stream()
+                .filter(p -> p.getBannerImage() != null && !p.getBannerImage().trim().isEmpty())
+                .map(ProductResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<ProductResponse> listAllProducts(String q, ProductStatus status, Pageable pageable) {
         Page<Product> products = productRepository.search(status, null, null, q, null, null, null, null, pageable);
         return PageResponse.from(products, ProductResponse::from);

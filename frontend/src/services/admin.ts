@@ -33,6 +33,10 @@ export const adminService = {
     })
   },
 
+  async listBannerProducts(): Promise<ProductResponse[]> {
+    return request<ProductResponse[]>({ method: 'GET', url: '/admin/products/banners' })
+  },
+
   async getProduct(publicId: string): Promise<ProductResponse> {
     return request<ProductResponse>({ method: 'GET', url: `/admin/products/${publicId}` })
   },

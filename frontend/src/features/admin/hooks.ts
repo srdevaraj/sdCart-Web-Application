@@ -13,6 +13,7 @@ import type {
 
 export const adminKeys = {
   products: ['admin', 'products'] as const,
+  bannerProducts: ['admin', 'banner-products'] as const,
   categories: ['admin', 'categories'] as const,
   brands: ['admin', 'brands'] as const,
   users: ['admin', 'users'] as const,
@@ -30,6 +31,13 @@ export function useAdminProducts(q?: string, status?: ProductStatus, page = 0, s
     queryKey: [...adminKeys.products, { q, status, page, size }],
     queryFn: () => adminService.listProducts(q, status, page, size),
     placeholderData: (prev) => prev,
+  })
+}
+
+export function useAdminBannerProducts() {
+  return useQuery({
+    queryKey: adminKeys.bannerProducts,
+    queryFn: () => adminService.listBannerProducts(),
   })
 }
 
@@ -88,6 +96,7 @@ export function useCreateProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: adminKeys.bannerProducts })
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
@@ -109,6 +118,7 @@ export function useUpdateProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: adminKeys.bannerProducts })
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
@@ -119,7 +129,11 @@ export function useUpdateProductStatus() {
   return useMutation({
     mutationFn: ({ publicId, status }: { publicId: string; status: ProductStatus }) =>
       adminService.updateProductStatus(publicId, status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: adminKeys.bannerProducts })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
   })
 }
 
@@ -127,7 +141,11 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (publicId: string) => adminService.deleteProduct(publicId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.products }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.products })
+      queryClient.invalidateQueries({ queryKey: adminKeys.bannerProducts })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
   })
 }
 

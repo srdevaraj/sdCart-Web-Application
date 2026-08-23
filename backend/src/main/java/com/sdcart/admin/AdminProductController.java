@@ -49,6 +49,11 @@ public class AdminProductController {
         return ResponseEntity.ok(ApiResponse.ok(productService.listAllProducts(q, status, pageable)));
     }
 
+    @GetMapping("/banners")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> listBanners() {
+        return ResponseEntity.ok(ApiResponse.ok(productService.listBannerProductsAdmin()));
+    }
+
     @GetMapping("/{publicId}")
     public ResponseEntity<ApiResponse<ProductResponse>> get(@PathVariable UUID publicId) {
         return ResponseEntity.ok(ApiResponse.ok(productService.getProductAdmin(publicId)));

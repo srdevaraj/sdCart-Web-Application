@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Boxes,
   CreditCard,
+  Image,
   LayoutDashboard,
   Package,
   Settings,
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { label: 'Dashboard', to: '/admin', icon: LayoutDashboard, end: true },
   { label: 'Products', to: '/admin/products', icon: Package },
+  { label: 'Banner Products', to: '/admin/banner-products', icon: Image },
   { label: 'Inventory', to: '/admin/inventory', icon: Warehouse },
   { label: 'Categories', to: '/admin/categories', icon: Boxes },
   { label: 'Brands', to: '/admin/brands', icon: Tags },
