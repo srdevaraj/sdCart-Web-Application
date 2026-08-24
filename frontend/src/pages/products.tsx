@@ -164,6 +164,11 @@ export default function ProductsPage({ title = 'Shop all products' }: { title?: 
     </div>
   )
 
+  const productSummaries = useMemo(
+    () => toProductSummaries(query.data?.content ?? []),
+    [query.data?.content],
+  )
+
   return (
     <div className="container py-8">
       <header className="mb-6">
@@ -244,7 +249,7 @@ export default function ProductsPage({ title = 'Shop all products' }: { title?: 
             />
           ) : (
             <>
-              <ProductGrid products={toProductSummaries(query.data.content)} />
+              <ProductGrid products={productSummaries} />
               <Pagination
                 className="mt-8"
                 page={query.data.page}

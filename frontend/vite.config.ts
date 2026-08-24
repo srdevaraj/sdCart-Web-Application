@@ -18,6 +18,30 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('/react/') ||
+              id.includes('/react-dom/') ||
+              id.includes('/react-router-dom/') ||
+              id.includes('/@tanstack/react-query/')
+            ) {
+              return 'vendor-core'
+            }
+            if (id.includes('/framer-motion/') || id.includes('/lucide-react/') || id.includes('/sonner/')) {
+              return 'vendor-ui'
+            }
+            if (id.includes('/recharts/')) {
+              return 'vendor-recharts'
+            }
+          }
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

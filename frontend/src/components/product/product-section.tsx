@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, PackageOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -46,8 +47,9 @@ export function ProductSection({
   className,
   query,
 }: ProductSectionProps) {
-  const products = toProductSummaries(query.data?.content ?? [])
-  const ratings = (query.data?.content ?? []).map((product) => product.averageRating)
+  const content = query.data?.content
+  const products = useMemo(() => toProductSummaries(content ?? []), [content])
+  const ratings = useMemo(() => (content ?? []).map((product) => product.averageRating), [content])
   const isEmpty = !query.isPending && !query.isError && products.length === 0
 
   return (

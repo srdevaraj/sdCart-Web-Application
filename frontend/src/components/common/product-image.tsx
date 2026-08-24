@@ -41,6 +41,7 @@ export function ProductImage({
           alt={alt}
           sizes={sizes}
           loading={loading}
+          decoding="async"
           {...(fetchPriority ? { fetchPriority } : {})}
           onError={() => setFailed(true)}
           className={cn('h-full w-full object-cover', imgClassName)}

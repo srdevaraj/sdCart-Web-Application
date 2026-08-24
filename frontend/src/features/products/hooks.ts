@@ -14,6 +14,7 @@ export function useProducts(params: ProductQuery) {
     queryKey: productKeys.list(params),
     queryFn: () => productService.list(params),
     placeholderData: (prev) => prev,
+    staleTime: 60_000,
   })
 }
 
@@ -21,6 +22,7 @@ export function useBannerProducts() {
   return useQuery({
     queryKey: ['products', 'banners'],
     queryFn: () => productService.listBanners(),
+    staleTime: 5 * 60 * 1000,
   })
 }
 
@@ -29,6 +31,7 @@ export function useProduct(publicId: string | undefined) {
     queryKey: productKeys.detail(publicId ?? ''),
     queryFn: () => productService.get(publicId as string),
     enabled: Boolean(publicId),
+    staleTime: 2 * 60 * 1000,
   })
 }
 

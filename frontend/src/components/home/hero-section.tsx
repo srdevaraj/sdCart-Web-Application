@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
@@ -249,55 +249,58 @@ export function HeroSection({
   const bannerQuery = useBannerProducts()
 
   // Use dedicated banner query products, falling back to query prop if provided
-  const bannerProducts =
-    bannerQuery.data && bannerQuery.data.length > 0
+  const bannerProducts = useMemo(() => {
+    return bannerQuery.data && bannerQuery.data.length > 0
       ? bannerQuery.data
       : query?.data?.content?.filter(
           (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
         ) ?? []
+  }, [bannerQuery.data, query?.data?.content])
 
   // 1. Filter products that have a dedicated admin-configured bannerImage
-  const eligibleProducts = bannerProducts.filter(
-    (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
-  )
+  const eligibleProducts = useMemo(() => {
+    return bannerProducts.filter(
+      (p) => typeof p.bannerImage === 'string' && p.bannerImage.trim().length > 0,
+    )
+  }, [bannerProducts])
 
   // 2. Build slide models: Custom slides -> Admin curated banner products (all items) -> Fallback slides
-  const slides: HeroSlide[] = customSlides?.length
-    ? customSlides
-    : eligibleProducts.length > 0
-    ? eligibleProducts.map((product, idx) => {
-        const words = product.name.trim().split(/\s+/)
-        const titleLine1 = words.slice(0, Math.min(2, Math.ceil(words.length / 2))).join(' ')
-        const titleLine2 = words.slice(Math.min(2, Math.ceil(words.length / 2))).join(' ') || 'Flagship'
+  const slides: HeroSlide[] = useMemo(() => {
+    if (customSlides?.length) return customSlides
+    if (eligibleProducts.length === 0) return DEFAULT_SLIDES
+    return eligibleProducts.map((product, idx) => {
+      const words = product.name.trim().split(/\s+/)
+      const titleLine1 = words.slice(0, Math.min(2, Math.ceil(words.length / 2))).join(' ')
+      const titleLine2 = words.slice(Math.min(2, Math.ceil(words.length / 2))).join(' ') || 'Flagship'
 
-        return {
-          id: product.publicId,
-          eyebrow:
-            idx === 0
-              ? 'Flagship Highlight · Curated'
-              : idx === 1
-              ? 'Top Rated · Customer Choice'
-              : idx === 2
-              ? 'Trending Now · Limited Edition'
-              : idx === 3
-              ? 'Exclusive Pick · Premium Selection'
-              : 'Editor’s Choice · Verified Quality',
-          titleLine1,
-          titleLine2,
-          description:
-            product.shortDescription ||
-            product.description ||
-            'Hand-picked quality products delivered straight to your door with fast, reliable shipping.',
-          primaryCtaText: 'Shop product',
-          primaryCtaLink: `/products/${product.publicId}`,
-          secondaryCtaText: 'View all products',
-          secondaryCtaLink: '/products',
-          badgeText: product.featured ? 'Featured Flagship' : 'Official Selection',
-          bannerImage: product.bannerImage ?? undefined,
-          product,
-        }
-      })
-    : DEFAULT_SLIDES
+      return {
+        id: product.publicId,
+        eyebrow:
+          idx === 0
+            ? 'Flagship Highlight · Curated'
+            : idx === 1
+            ? 'Top Rated · Customer Choice'
+            : idx === 2
+            ? 'Trending Now · Limited Edition'
+            : idx === 3
+            ? 'Exclusive Pick · Premium Selection'
+            : 'Editor’s Choice · Verified Quality',
+        titleLine1,
+        titleLine2,
+        description:
+          product.shortDescription ||
+          product.description ||
+          'Hand-picked quality products delivered straight to your door with fast, reliable shipping.',
+        primaryCtaText: 'Shop product',
+        primaryCtaLink: `/products/${product.publicId}`,
+        secondaryCtaText: 'View all products',
+        secondaryCtaLink: '/products',
+        badgeText: product.featured ? 'Featured Flagship' : 'Official Selection',
+        bannerImage: product.bannerImage ?? undefined,
+        product,
+      }
+    })
+  }, [customSlides, eligibleProducts])
 
   const totalSlides = slides.length
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -317,7 +320,7 @@ export function HeroSection({
   }, [totalSlides, currentIndex])
 
   const activeSlide = slides[currentIndex] ?? slides[0]
-  const ambientColors = getSlideAmbientColors(activeSlide)
+  const ambientColors = useMemo(() => getSlideAmbientColors(activeSlide), [activeSlide])
 
   // Track Page Visibility API (pause rotation when tab is hidden)
   useEffect(() => {
@@ -1027,21 +1030,56 @@ function AuroraBackground() {
   const prefersReduced = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const pointerRef = useRef<HTMLDivElement>(null)
+  const rectRef = useRef<DOMRect | null>(null)
+  const rafRef = useRef<number | null>(null)
   const [pointerVisible, setPointerVisible] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [])
+
+  const handleMouseEnter = useCallback(() => {
+    if (prefersReduced) return
+    if (containerRef.current) {
+      rectRef.current = containerRef.current.getBoundingClientRect()
+    }
+  }, [prefersReduced])
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (prefersReduced) return
-      const rect = containerRef.current?.getBoundingClientRect()
-      if (!rect || !pointerRef.current) return
-      pointerRef.current.style.left = `${e.clientX - rect.left}px`
-      pointerRef.current.style.top = `${e.clientY - rect.top}px`
-      if (!pointerVisible) setPointerVisible(true)
+      const clientX = e.clientX
+      const clientY = e.clientY
+
+      if (rafRef.current !== null) return
+
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null
+        let rect = rectRef.current
+        if (!rect && containerRef.current) {
+          rect = containerRef.current.getBoundingClientRect()
+          rectRef.current = rect
+        }
+        if (rect && pointerRef.current) {
+          pointerRef.current.style.left = `${clientX - rect.left}px`
+          pointerRef.current.style.top = `${clientY - rect.top}px`
+          if (!pointerVisible) setPointerVisible(true)
+        }
+      })
     },
     [prefersReduced, pointerVisible],
   )
 
   const handleMouseLeave = useCallback(() => {
+    rectRef.current = null
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
     setPointerVisible(false)
   }, [])
 
@@ -1050,6 +1088,7 @@ function AuroraBackground() {
       ref={containerRef}
       aria-hidden="true"
       className="pointer-events-none absolute inset-0"
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ pointerEvents: 'auto' }}

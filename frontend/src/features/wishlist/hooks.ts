@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/features/auth/auth-store'
 import { wishlistService } from '@/services/wishlist'
@@ -18,7 +19,7 @@ export function useWishlist() {
 
 export function useWishlistProductIds(): Set<string> {
   const { data } = useWishlist()
-  return new Set((data?.items ?? []).map((item) => item.product.publicId))
+  return useMemo(() => new Set((data?.items ?? []).map((item) => item.product.publicId)), [data?.items])
 }
 
 export function useAddToWishlist() {

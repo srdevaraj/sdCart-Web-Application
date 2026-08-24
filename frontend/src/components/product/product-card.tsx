@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { memo, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Heart, ShoppingCart } from 'lucide-react'
 import { toast } from 'sonner'
@@ -21,7 +21,7 @@ interface ProductCardProps {
   className?: string
 }
 
-export function ProductCard({ product, rating, className }: ProductCardProps) {
+function ProductCardComponent({ product, rating, className }: ProductCardProps) {
   const navigate = useNavigate()
   const isAuthed = useAuthStore((s) => s.isAuthenticated)
   const wishlistIds = useWishlistProductIds()
@@ -35,6 +35,7 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
 
   const prefersReduced = useReducedMotion()
   const cardRef = useRef<HTMLDivElement>(null)
+  const rectRef = useRef<DOMRect | null>(null)
 
   // Parallax tilt on hover
   const mouseX = useMotionValue(0.5)
@@ -42,15 +43,27 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
   const rotateX = useSpring(useTransform(mouseY, [0, 1], [3, -3]), { stiffness: 300, damping: 30 })
   const rotateY = useSpring(useTransform(mouseX, [0, 1], [-3, 3]), { stiffness: 300, damping: 30 })
 
+  function handleMouseEnter() {
+    if (prefersReduced) return
+    if (cardRef.current) {
+      rectRef.current = cardRef.current.getBoundingClientRect()
+    }
+  }
+
   function handleMouseMove(e: React.MouseEvent) {
     if (prefersReduced) return
-    const rect = cardRef.current?.getBoundingClientRect()
-    if (!rect) return
+    let rect = rectRef.current
+    if (!rect && cardRef.current) {
+      rect = cardRef.current.getBoundingClientRect()
+      rectRef.current = rect
+    }
+    if (!rect || rect.width === 0 || rect.height === 0) return
     mouseX.set((e.clientX - rect.left) / rect.width)
     mouseY.set((e.clientY - rect.top) / rect.height)
   }
 
   function handleMouseLeave() {
+    rectRef.current = null
     mouseX.set(0.5)
     mouseY.set(0.5)
   }
@@ -91,6 +104,7 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
     <motion.article
       ref={prefersReduced ? undefined : cardRef}
       style={prefersReduced ? undefined : { rotateX, rotateY, transformPerspective: 800 }}
+      onMouseEnter={prefersReduced ? undefined : handleMouseEnter}
       onMouseMove={prefersReduced ? undefined : handleMouseMove}
       onMouseLeave={prefersReduced ? undefined : handleMouseLeave}
       whileHover={prefersReduced ? undefined : { y: -4 }}
@@ -161,3 +175,6 @@ export function ProductCard({ product, rating, className }: ProductCardProps) {
     </motion.article>
   )
 }
+
+export const ProductCard = memo(ProductCardComponent)
+
