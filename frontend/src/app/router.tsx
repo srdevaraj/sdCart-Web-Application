@@ -5,6 +5,7 @@ import { CustomerLayout } from '@/components/layout/customer-layout'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { RequireAdmin, RequireAuth } from '@/components/layout/require-auth'
 import { LoadingState } from '@/components/common/loading-state'
+import { RouteErrorBoundary } from '@/components/common/error-boundary'
 import { ProductsLoadingSkeleton } from '@/pages/products-loading'
 
 // Route-level code splitting: each page is loaded only when first visited.
@@ -52,6 +53,7 @@ function withSuspense(node: React.ReactNode, fallback?: React.ReactNode) {
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       { index: true, element: withSuspense(<HomePage />) },
       {
@@ -104,6 +106,7 @@ export const router = createBrowserRouter([
   },
   {
     path: 'account',
+    errorElement: <RouteErrorBoundary />,
     element: (
       <RequireAuth>
         <CustomerLayout />
@@ -121,6 +124,7 @@ export const router = createBrowserRouter([
   },
   {
     path: 'admin',
+    errorElement: <RouteErrorBoundary />,
     element: (
       <RequireAdmin>
         <AdminLayout />

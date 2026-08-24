@@ -4,11 +4,13 @@ import { AnimatePresence } from 'framer-motion'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { PageTransition } from '@/components/common/motion'
+import { clearChunkErrorReloadFlag } from '@/utils/error-utils'
 
 function ScrollToTop() {
   const { pathname, search } = useLocation()
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
+    clearChunkErrorReloadFlag()
   }, [pathname, search])
   return null
 }
