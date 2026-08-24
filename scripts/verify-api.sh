@@ -181,10 +181,12 @@ DEL=$(curl -s -X DELETE "$BASE/admin/products/$NPID" -H "$AAUTH" | jval "d['succ
 NCID=$(curl -s -X POST "$BASE/admin/categories" -H "$AAUTH" -H 'Content-Type: application/json' \
   -d "{\"name\":\"Verify Cat $(date +%s)\",\"active\":true}" | jval "d['data']['publicId']")
 [ -n "$NCID" ] && ok "admin category create" || bad "admin category create"
+[ -n "$NCID" ] && curl -s -X DELETE "$BASE/admin/categories/$NCID" -H "$AAUTH" > /dev/null
 
 NBID=$(curl -s -X POST "$BASE/admin/brands" -H "$AAUTH" -H 'Content-Type: application/json' \
   -d "{\"name\":\"Verify Brand $(date +%s)\",\"active\":true}" | jval "d['data']['publicId']")
 [ -n "$NBID" ] && ok "admin brand create" || bad "admin brand create"
+[ -n "$NBID" ] && curl -s -X DELETE "$BASE/admin/brands/$NBID" -H "$AAUTH" > /dev/null
 
 NCU=$(curl -s -X POST "$BASE/admin/coupons" -H "$AAUTH" -H 'Content-Type: application/json' \
   -d "{\"code\":\"VERIFY$(date +%s)\",\"type\":\"PERCENTAGE\",\"value\":5,\"minOrderAmount\":10,\"maxUsages\":10,\"perUserLimit\":1,\"validFrom\":\"2026-01-01T00:00:00Z\",\"validUntil\":\"2027-01-01T00:00:00Z\",\"active\":true}" | jval "d['data']['publicId']")

@@ -60,10 +60,36 @@ public class ProductService {
     public PageResponse<ProductResponse> listProducts(String categorySlug, String brandSlug, String q,
                                                       BigDecimal minPrice, BigDecimal maxPrice,
                                                       Boolean inStock, Boolean featured, Pageable pageable) {
-        Long categoryId = categorySlug == null ? null
-                : categoryRepository.findBySlug(categorySlug).map(Category::getId).orElse(null);
-        Long brandId = brandSlug == null ? null
-                : brandRepository.findBySlug(brandSlug).map(Brand::getId).orElse(null);
+        Long categoryId = null;
+        if (StringUtils.hasText(categorySlug)) {
+            String cleanSlug = categorySlug.trim().toLowerCase();
+            categoryId = categoryRepository.findBySlug(cleanSlug)
+                    .map(Category::getId)
+                    .orElseGet(() -> {
+                        try {
+                            UUID publicId = UUID.fromString(categorySlug.trim());
+                            return categoryRepository.findByPublicId(publicId).map(Category::getId).orElse(-1L);
+                        } catch (IllegalArgumentException e) {
+                            return -1L;
+                        }
+                    });
+        }
+
+        Long brandId = null;
+        if (StringUtils.hasText(brandSlug)) {
+            String cleanSlug = brandSlug.trim().toLowerCase();
+            brandId = brandRepository.findBySlug(cleanSlug)
+                    .map(Brand::getId)
+                    .orElseGet(() -> {
+                        try {
+                            UUID publicId = UUID.fromString(brandSlug.trim());
+                            return brandRepository.findByPublicId(publicId).map(Brand::getId).orElse(-1L);
+                        } catch (IllegalArgumentException e) {
+                            return -1L;
+                        }
+                    });
+        }
+
         Page<Product> products = productRepository.search(
                 ProductStatus.ACTIVE, categoryId, brandId, q, inStock, minPrice, maxPrice, featured, pageable);
         return PageResponse.from(products, ProductResponse::from);
