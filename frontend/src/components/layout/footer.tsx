@@ -203,13 +203,17 @@ export function Footer() {
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/80 text-primary transition-all duration-300 group-hover:border-primary group-hover:bg-primary/10">
                   <Phone className="h-3.5 w-3.5" aria-hidden />
                 </span>
-                <span>+1 (555) 010-2020</span>
+                <a href="tel:+918555984667" className="transition-colors hover:text-primary">
+                  +91 (855) 598-4667
+                </a>
               </li>
               <li className="flex items-center gap-3 group">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/80 text-primary transition-all duration-300 group-hover:border-primary group-hover:bg-primary/10">
                   <Mail className="h-3.5 w-3.5" aria-hidden />
                 </span>
-                <span>support@sdcart.com</span>
+                <a href="mailto:sdcartbigmart@gmail.com" className="transition-colors hover:text-primary break-all">
+                  sdcartbigmart@gmail.com
+                </a>
               </li>
               <li className="flex items-center gap-3 group">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/80 text-primary transition-all duration-300 group-hover:border-primary group-hover:bg-primary/10">

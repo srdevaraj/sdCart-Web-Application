@@ -16,13 +16,13 @@ export default function ResetPasswordPage() {
         </div>
         <p className="text-sm text-muted-foreground">
           Password resets are handled securely by our support team. Please{' '}
-          <a href="mailto:support@sdcart.com" className="font-medium text-primary hover:underline">
+          <a href="mailto:sdcartbigmart@gmail.com" className="font-medium text-primary hover:underline">
             contact support
           </a>{' '}
           and include the reset link you received.
         </p>
         <Button asChild variant="outline" className="w-full">
-          <a href="mailto:support@sdcart.com">Contact support</a>
+          <a href="mailto:sdcartbigmart@gmail.com">Contact support</a>
         </Button>
         <Button asChild variant="ghost" className="w-full">
           <Link to="/login">Back to sign in</Link>

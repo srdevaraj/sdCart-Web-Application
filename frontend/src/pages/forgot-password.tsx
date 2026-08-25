@@ -41,14 +41,14 @@ export default function ForgotPasswordPage() {
           </div>
           <p className="text-sm text-muted-foreground">
             Self-service password reset isn't available yet. Please email our support team at{' '}
-            <a href="mailto:support@sdcart.com" className="font-medium text-primary hover:underline">
-              support@sdcart.com
+            <a href="mailto:sdcartbigmart@gmail.com" className="font-medium text-primary hover:underline">
+              sdcartbigmart@gmail.com
             </a>{' '}
             with the email <span className="font-medium text-foreground">you entered</span> and we'll
             reset your password within one business day.
           </p>
           <Button asChild variant="outline" className="w-full">
-            <a href="mailto:support@sdcart.com">Email support</a>
+            <a href="mailto:sdcartbigmart@gmail.com">Email support</a>
           </Button>
           <Button asChild variant="ghost" className="w-full">
             <Link to="/login">Back to sign in</Link>

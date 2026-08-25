@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
+import { ProductImage } from '@/components/common/product-image'
 import { useCategories } from '@/features/products/hooks'
 
 export default function CategoriesPage() {
@@ -32,11 +33,17 @@ export default function CategoriesPage() {
             <Link
               key={category.publicId}
               to={`/products?category=${category.slug}`}
-              className="group relative flex min-h-44 flex-col justify-end overflow-hidden rounded-lg border bg-muted p-6 transition-shadow hover:shadow-pop"
+              className="group relative flex min-h-48 flex-col justify-end overflow-hidden rounded-2xl border bg-muted p-6 transition-shadow hover:shadow-pop card-glow"
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" aria-hidden />
+              <ProductImage
+                src={category.imageUrl}
+                alt={category.name}
+                className="absolute inset-0 h-full w-full bg-muted"
+                imgClassName="transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent" aria-hidden />
               <div className="relative z-10">
-                <h2 className="font-display text-xl font-bold text-white">{category.name}</h2>
+                <h2 className="font-display text-xl font-bold text-white drop-shadow-sm">{category.name}</h2>
                 {category.description && (
                   <p className="mt-1 line-clamp-2 text-sm text-white/80">{category.description}</p>
                 )}
