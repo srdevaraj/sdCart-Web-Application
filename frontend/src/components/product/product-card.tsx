@@ -1,14 +1,14 @@
 import { memo, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Heart, ShoppingCart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ProductImage } from '@/components/common/product-image'
 import { RatingStars } from '@/components/common/rating-stars'
+import { WishlistButton } from '@/components/product/wishlist-button'
 import { useAuthStore } from '@/features/auth/auth-store'
 import { useAddToCart } from '@/features/cart/hooks'
-import { useAddToWishlist, useRemoveFromWishlist, useWishlistProductIds } from '@/features/wishlist/hooks'
 import { getErrorMessage } from '@/lib/api-client'
 import { formatPrice } from '@/utils/format'
 import type { ProductSummaryResponse } from '@/types'
@@ -24,12 +24,8 @@ interface ProductCardProps {
 function ProductCardComponent({ product, rating, className }: ProductCardProps) {
   const navigate = useNavigate()
   const isAuthed = useAuthStore((s) => s.isAuthenticated)
-  const wishlistIds = useWishlistProductIds()
-  const isWishlisted = wishlistIds.has(product.publicId)
 
   const addToCart = useAddToCart()
-  const addToWishlist = useAddToWishlist()
-  const removeFromWishlist = useRemoveFromWishlist()
 
   const outOfStock = product.stockQuantity <= 0
 
@@ -82,24 +78,6 @@ function ProductCardComponent({ product, rating, className }: ProductCardProps) 
     )
   }
 
-  function handleToggleWishlist() {
-    if (!isAuthed) {
-      navigate('/login', { state: { from: `/products/${product.publicId}` } })
-      return
-    }
-    if (isWishlisted) {
-      removeFromWishlist.mutate(product.publicId, {
-        onSuccess: () => toast.success('Removed from wishlist'),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      })
-    } else {
-      addToWishlist.mutate(product.publicId, {
-        onSuccess: () => toast.success('Added to wishlist'),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      })
-    }
-  }
-
   return (
     <motion.article
       ref={prefersReduced ? undefined : cardRef}
@@ -138,17 +116,11 @@ function ProductCardComponent({ product, rating, className }: ProductCardProps) 
         )}
       </Link>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        onClick={handleToggleWishlist}
-        aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-        aria-pressed={isWishlisted}
+      <WishlistButton
+        productId={product.publicId}
         className="absolute right-2 top-2 rounded-full glass-surface shadow-sm transition-transform duration-200 hover:scale-110"
-      >
-        <Heart className={cn('h-4 w-4', isWishlisted && 'fill-destructive text-destructive')} />
-      </Button>
+        iconClassName="h-4 w-4"
+      />
 
       <div className="flex flex-1 flex-col gap-1 p-3">
         <h3 className="line-clamp-2 text-sm font-medium leading-snug">

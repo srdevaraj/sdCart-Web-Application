@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Check, Heart, Minus, Plus, ShieldCheck, ShoppingCart, Truck } from 'lucide-react'
+import { Check, Minus, Plus, ShieldCheck, ShoppingCart, Truck } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Pagination } from '@/components/ui/pagination'
 import { ProductImage } from '@/components/common/product-image'
 import { ProductGrid } from '@/components/product/product-grid'
+import { WishlistButton } from '@/components/product/wishlist-button'
 import { toProductSummaries } from '@/utils/product'
 import { RatingStars } from '@/components/common/rating-stars'
 import { EmptyState } from '@/components/common/empty-state'
@@ -17,10 +18,8 @@ import { ReviewForm } from '@/components/product/review-form'
 import { ReviewItem } from '@/components/product/review-item'
 import { useAuthStore } from '@/features/auth/auth-store'
 import { cartErrorMessage, useAddToCart } from '@/features/cart/hooks'
-import { useAddToWishlist, useRemoveFromWishlist, useWishlistProductIds } from '@/features/wishlist/hooks'
 import { useProduct, useProducts } from '@/features/products/hooks'
 import { useProductReviews } from '@/features/reviews/hooks'
-import { getErrorMessage } from '@/lib/api-client'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/utils/format'
 
@@ -42,12 +41,7 @@ export default function ProductDetailPage() {
   )
 
   const isAuthed = useAuthStore((s) => s.isAuthenticated)
-  const wishlistIds = useWishlistProductIds()
-  const isWishlisted = publicId ? wishlistIds.has(publicId) : false
-
   const addToCart = useAddToCart()
-  const addToWishlist = useAddToWishlist()
-  const removeFromWishlist = useRemoveFromWishlist()
 
   useEffect(() => {
     setQuantity(1)
@@ -109,21 +103,6 @@ export default function ProductDetailPage() {
         onError: (error) => toast.error(cartErrorMessage(error)),
       },
     )
-  }
-
-  function handleToggleWishlist() {
-    if (!requireAuth()) return
-    if (isWishlisted) {
-      removeFromWishlist.mutate(productId, {
-        onSuccess: () => toast.success('Removed from wishlist'),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      })
-    } else {
-      addToWishlist.mutate(productId, {
-        onSuccess: () => toast.success('Added to wishlist'),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      })
-    }
   }
 
   return (
@@ -247,16 +226,13 @@ export default function ProductDetailPage() {
             <Button size="lg" variant="outline" onClick={handleBuyNow} disabled={outOfStock} className="flex-1 sm:flex-none">
               Buy now
             </Button>
-            <Button
-              size="icon"
+            <WishlistButton
+              productId={productId}
               variant="outline"
-              onClick={handleToggleWishlist}
-              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-              aria-pressed={isWishlisted}
+              size="icon"
               className="h-11 w-11"
-            >
-              <Heart className={cn('h-5 w-5', isWishlisted && 'fill-destructive text-destructive')} aria-hidden />
-            </Button>
+              iconClassName="h-5 w-5"
+            />
           </div>
 
           <div className="grid gap-3 pt-2 text-sm text-muted-foreground sm:grid-cols-2">
