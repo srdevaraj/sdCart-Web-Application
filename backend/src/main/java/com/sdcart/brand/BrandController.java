@@ -2,11 +2,6 @@ package com.sdcart.brand;
 
 import com.sdcart.brand.dto.BrandResponse;
 import com.sdcart.common.ApiResponse;
-import com.sdcart.common.PageResponse;
-import com.sdcart.product.dto.ProductResponse;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

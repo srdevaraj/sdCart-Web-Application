@@ -44,18 +44,22 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
     @Column(name = "items_subtotal", nullable = false, precision = 12, scale = 2)
     private BigDecimal itemsSubtotal;
 
     @Column(name = "discount_amount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
     @Column(name = "shipping_fee", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
     private BigDecimal shippingFee = BigDecimal.ZERO;
 
     @Column(name = "tax_amount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
     private BigDecimal taxAmount = BigDecimal.ZERO;
 
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)

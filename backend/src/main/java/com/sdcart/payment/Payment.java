@@ -41,15 +41,18 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Builder.Default
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
     @Column(nullable = false, length = 3)
+    @Builder.Default
     private String currency = "USD";
 
     @Column(nullable = false, length = 50)
+    @Builder.Default
     private String gateway = "MOCK";
 
     @Column(name = "gateway_reference", length = 255)

@@ -2,12 +2,10 @@ package com.sdcart.address;
 
 import com.sdcart.address.dto.AddressRequest;
 import com.sdcart.address.dto.AddressResponse;
-import com.sdcart.common.exception.BusinessException;
 import com.sdcart.common.exception.ResourceNotFoundException;
 import com.sdcart.user.User;
 import com.sdcart.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
