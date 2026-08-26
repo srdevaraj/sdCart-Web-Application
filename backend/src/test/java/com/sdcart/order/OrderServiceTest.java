@@ -113,10 +113,35 @@ class OrderServiceTest {
         when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
 
         OrderResponse response = orderService.placeOrder(1L,
-                new CreateOrderRequest(UUID.randomUUID(), PaymentMethod.CASH_ON_DELIVERY, null));
+                new CreateOrderRequest(UUID.randomUUID(), PaymentMethod.CARD, null));
 
+        assertThat(response.status()).isEqualTo(OrderStatus.PENDING);
         assertThat(response.shippingFee()).isEqualByComparingTo("0.00");
         assertThat(response.totalAmount()).isEqualByComparingTo("60.00");
+    }
+
+    @Test
+    void placeOrder_cashOnDelivery_immediatelyConfirmed() {
+        User user = user(1L);
+        Product product = product(1L, "Widget", "10.00", 5);
+        Cart cart = cartWithItem(user, product, 1);
+        Address address = address(user);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(cartRepository.findWithItemsByUserId(1L)).thenReturn(Optional.of(cart));
+        when(addressRepository.findByPublicIdAndUserId(any(), eq(1L))).thenReturn(Optional.of(address));
+        when(productRepository.findAllByIdForUpdate(any())).thenReturn(List.of(product));
+        when(orderRepository.existsByOrderNumber(any())).thenReturn(false);
+        when(orderRepository.save(any(Order.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        OrderResponse response = orderService.placeOrder(1L,
+                new CreateOrderRequest(UUID.randomUUID(), PaymentMethod.CASH_ON_DELIVERY, null));
+
+        assertThat(response.status()).isEqualTo(OrderStatus.CONFIRMED);
+        assertThat(response.payment()).isNotNull();
+        assertThat(response.payment().method()).isEqualTo(PaymentMethod.CASH_ON_DELIVERY);
+        assertThat(response.payment().status()).isEqualTo(PaymentStatus.PENDING);
     }
 
     @Test

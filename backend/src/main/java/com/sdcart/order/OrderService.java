@@ -48,7 +48,9 @@ public class OrderService {
     private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("50.00");
     private static final BigDecimal FLAT_SHIPPING_FEE = new BigDecimal("5.00");
     private static final Map<OrderStatus, Set<OrderStatus>> STATUS_TRANSITIONS = Map.of(
-            OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
+            OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.AWAITING_PAYMENT, OrderStatus.PAYMENT_FAILED, OrderStatus.CANCELLED),
+            OrderStatus.AWAITING_PAYMENT, Set.of(OrderStatus.CONFIRMED, OrderStatus.PAYMENT_FAILED, OrderStatus.CANCELLED),
+            OrderStatus.PAYMENT_FAILED, Set.of(OrderStatus.CONFIRMED, OrderStatus.AWAITING_PAYMENT, OrderStatus.CANCELLED),
             OrderStatus.CONFIRMED, Set.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
             OrderStatus.SHIPPED, Set.of(OrderStatus.DELIVERED),
             OrderStatus.DELIVERED, Set.of(),
@@ -147,10 +149,14 @@ public class OrderService {
         BigDecimal taxAmount = BigDecimal.ZERO;
         BigDecimal total = itemsSubtotal.subtract(discount).add(shippingFee).add(taxAmount);
 
+        OrderStatus initialStatus = request.paymentMethod() == PaymentMethod.CASH_ON_DELIVERY
+                ? OrderStatus.CONFIRMED
+                : OrderStatus.PENDING;
+
         Order order = Order.builder()
                 .user(user)
                 .orderNumber(generateOrderNumber())
-                .status(OrderStatus.PENDING)
+                .status(initialStatus)
                 .itemsSubtotal(itemsSubtotal)
                 .discountAmount(discount)
                 .shippingFee(shippingFee)
@@ -228,8 +234,10 @@ public class OrderService {
     public OrderResponse cancelOrder(Long userId, UUID publicId) {
         Order order = orderRepository.findByPublicIdAndUserId(publicId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", publicId));
-        if (order.getStatus() != OrderStatus.PENDING) {
-            throw new BusinessException(HttpStatus.CONFLICT, "Only pending orders can be cancelled");
+        if (order.getStatus() != OrderStatus.PENDING
+                && order.getStatus() != OrderStatus.AWAITING_PAYMENT
+                && order.getStatus() != OrderStatus.PAYMENT_FAILED) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Only pending or unpaid orders can be cancelled");
         }
         restoreStock(order);
         order.setStatus(OrderStatus.CANCELLED);

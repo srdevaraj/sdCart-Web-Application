@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.UUID;
 
 @RestController
@@ -28,5 +30,16 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<PaymentResponse>> pay(@PathVariable UUID orderPublicId) {
         return ResponseEntity.ok(ApiResponse.ok("Payment processed",
                 paymentService.payOrder(SecurityUtils.currentUserId(), orderPublicId)));
+    }
+
+    /**
+     * Simulates a failed payment callback or client cancellation for a pending order.
+     */
+    @PostMapping("/orders/{orderPublicId}/fail")
+    public ResponseEntity<ApiResponse<PaymentResponse>> fail(
+            @PathVariable UUID orderPublicId,
+            @RequestParam(required = false) String reason) {
+        return ResponseEntity.ok(ApiResponse.ok("Payment marked as failed",
+                paymentService.failPayment(SecurityUtils.currentUserId(), orderPublicId, reason)));
     }
 }

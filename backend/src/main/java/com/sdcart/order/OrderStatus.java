@@ -2,8 +2,10 @@ package com.sdcart.order;
 
 public enum OrderStatus {
     PENDING,
+    AWAITING_PAYMENT,
     CONFIRMED,
     SHIPPED,
     DELIVERED,
-    CANCELLED
+    CANCELLED,
+    PAYMENT_FAILED
 }

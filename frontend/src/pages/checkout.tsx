@@ -15,7 +15,7 @@ import { ProductImage } from '@/components/common/product-image'
 import { AddressForm } from '@/features/addresses/address-form'
 import { useAddresses } from '@/features/addresses/hooks'
 import { useCart } from '@/features/cart/hooks'
-import { usePlaceOrder } from '@/features/orders/hooks'
+import { usePlaceOrder, usePayOrder } from '@/features/orders/hooks'
 import { useValidateCoupon } from '@/features/coupons/hooks'
 import { getErrorMessage } from '@/lib/api-client'
 import { formatPrice } from '@/utils/format'
@@ -33,6 +33,7 @@ export default function CheckoutPage() {
   const cartQuery = useCart()
   const addressesQuery = useAddresses()
   const placeOrder = usePlaceOrder()
+  const payOrder = usePayOrder()
   const validateCoupon = useValidateCoupon()
 
   const [addressId, setAddressId] = useState<string | null>(null)
@@ -82,13 +83,24 @@ export default function CheckoutPage() {
     }
     try {
       const order = await placeOrder.mutateAsync(payload)
-      // Card & PayPal go through the (mock) payment gateway; COD settles on delivery.
-      if (paymentMethod !== 'CASH_ON_DELIVERY') {
-        toast.info('Processing payment…')
+
+      // Cash On Delivery is immediately confirmed on order creation
+      if (paymentMethod === 'CASH_ON_DELIVERY') {
+        toast.success('Order placed successfully!')
+        navigate(`/order-confirmation/${order.publicId}`)
+        return
       }
-      navigate(`/order-confirmation/${order.publicId}`, {
-        state: { needsPayment: paymentMethod !== 'CASH_ON_DELIVERY' },
-      })
+
+      // Card & PayPal go through payment gateway verification before confirmation
+      toast.info('Processing payment…')
+      try {
+        await payOrder.mutateAsync(order.publicId)
+        toast.success('Payment successful! Your order is confirmed.')
+        navigate(`/order-confirmation/${order.publicId}`)
+      } catch (payError) {
+        toast.error(getErrorMessage(payError, 'Payment could not be completed. Your order is saved as pending.'))
+        navigate(`/order-confirmation/${order.publicId}`)
+      }
     } catch (error) {
       toast.error(getErrorMessage(error, 'We could not place your order'))
     }

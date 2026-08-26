@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { CheckCircle2, CreditCard, Truck } from 'lucide-react'
+import { AlertCircle, AlertOctagon, CheckCircle2, Clock, CreditCard, Truck } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -21,7 +21,12 @@ export default function OrderConfirmationPage() {
 
   const order = orderQuery.data
   const awaitingPayment =
-    order != null && order.status === 'PENDING' && order.payment?.status === 'PENDING' && order.payment.method !== 'CASH_ON_DELIVERY'
+    order != null &&
+    (order.status === 'PENDING' ||
+      order.status === 'AWAITING_PAYMENT' ||
+      order.status === 'PAYMENT_FAILED') &&
+    order.payment?.status !== 'COMPLETED' &&
+    order.payment?.method !== 'CASH_ON_DELIVERY'
 
   function handlePay() {
     if (!order) return
@@ -57,20 +62,54 @@ export default function OrderConfirmationPage() {
     )
   }
 
-  const isConfirmed = order.status !== 'CANCELLED'
+  const isConfirmed = order.status === 'CONFIRMED' || order.status === 'SHIPPED' || order.status === 'DELIVERED'
+  const isPaymentFailed = order.status === 'PAYMENT_FAILED'
+  const isCancelled = order.status === 'CANCELLED'
 
   return (
     <div className="container max-w-3xl py-12">
       <div className="text-center">
-        <CheckCircle2 className="mx-auto h-16 w-16 text-success" aria-hidden />
-        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">
-          {isConfirmed ? 'Thank you for your order!' : 'Order cancelled'}
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          {isConfirmed
-            ? `Your order ${order.orderNumber} has been placed. A confirmation was sent to your account.`
-            : `Order ${order.orderNumber} has been cancelled.`}
-        </p>
+        {isConfirmed ? (
+          <>
+            <CheckCircle2 className="mx-auto h-16 w-16 text-success" aria-hidden />
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">
+              Thank you for your order!
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Your order {order.orderNumber} is confirmed. A confirmation was sent to your account.
+            </p>
+          </>
+        ) : isPaymentFailed ? (
+          <>
+            <AlertCircle className="mx-auto h-16 w-16 text-destructive" aria-hidden />
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">
+              Payment Failed
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Payment for order {order.orderNumber} could not be processed. Please complete payment to confirm your order.
+            </p>
+          </>
+        ) : isCancelled ? (
+          <>
+            <AlertOctagon className="mx-auto h-16 w-16 text-destructive" aria-hidden />
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">
+              Order cancelled
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Order {order.orderNumber} has been cancelled.
+            </p>
+          </>
+        ) : (
+          <>
+            <Clock className="mx-auto h-16 w-16 text-warning" aria-hidden />
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight">
+              Order Placed — Awaiting Payment
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Your order {order.orderNumber} has been created. Please complete payment to confirm your order.
+            </p>
+          </>
+        )}
       </div>
 
       {awaitingPayment && (
@@ -78,9 +117,11 @@ export default function OrderConfirmationPage() {
           <CardContent className="flex flex-col items-center gap-3 p-6 text-center sm:flex-row sm:text-left">
             <CreditCard className="h-8 w-8 text-warning" aria-hidden />
             <div className="flex-1">
-              <p className="font-semibold">Complete your payment</p>
+              <p className="font-semibold">
+                {isPaymentFailed ? 'Retry your payment' : 'Complete your payment'}
+              </p>
               <p className="text-sm text-muted-foreground">
-                Your order is reserved but not yet paid. Complete payment to confirm it.
+                Your order is saved. Complete payment with the gateway to confirm it.
               </p>
             </div>
             <Button onClick={handlePay} disabled={payOrder.isPending}>

@@ -10,10 +10,12 @@ import {
 
 const ORDER_STATUS_VARIANT: Record<OrderStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive'> = {
   PENDING: 'warning',
+  AWAITING_PAYMENT: 'warning',
   CONFIRMED: 'default',
   SHIPPED: 'secondary',
   DELIVERED: 'success',
   CANCELLED: 'destructive',
+  PAYMENT_FAILED: 'destructive',
 }
 
 const PAYMENT_STATUS_VARIANT: Record<

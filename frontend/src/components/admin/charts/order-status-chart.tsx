@@ -10,7 +10,7 @@ import type { StatusCount } from '@/types'
 // CANCELLED → "Cancelled"
 // ---------------------------------------------------------------------------
 
-const IN_PROGRESS_STATUSES = new Set(['PENDING', 'CONFIRMED', 'SHIPPED'])
+const IN_PROGRESS_STATUSES = new Set(['PENDING', 'AWAITING_PAYMENT', 'CONFIRMED', 'SHIPPED'])
 
 interface Bucket {
   label: string
@@ -26,7 +26,7 @@ function buildBuckets(data: StatusCount[]): Bucket[] {
   for (const d of data) {
     if (d.status === 'DELIVERED') delivered += d.count
     else if (IN_PROGRESS_STATUSES.has(d.status)) inProgress += d.count
-    else if (d.status === 'CANCELLED') cancelled += d.count
+    else if (d.status === 'CANCELLED' || d.status === 'PAYMENT_FAILED') cancelled += d.count
   }
 
   return [

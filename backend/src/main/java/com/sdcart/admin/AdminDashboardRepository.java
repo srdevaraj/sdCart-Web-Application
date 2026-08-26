@@ -32,7 +32,7 @@ public class AdminDashboardRepository {
         return em.createQuery(
                         "SELECT YEAR(o.createdAt), SUM(o.totalAmount) " +
                         "FROM Order o " +
-                        "WHERE o.status <> com.sdcart.order.OrderStatus.CANCELLED " +
+                        "WHERE o.status NOT IN (com.sdcart.order.OrderStatus.CANCELLED, com.sdcart.order.OrderStatus.PAYMENT_FAILED) " +
                         "  AND YEAR(o.createdAt) >= :startYear " +
                         "GROUP BY YEAR(o.createdAt) " +
                         "ORDER BY YEAR(o.createdAt)")
@@ -50,7 +50,7 @@ public class AdminDashboardRepository {
         return em.createQuery(
                         "SELECT MONTH(o.createdAt), SUM(o.totalAmount) " +
                         "FROM Order o " +
-                        "WHERE o.status <> com.sdcart.order.OrderStatus.CANCELLED " +
+                        "WHERE o.status NOT IN (com.sdcart.order.OrderStatus.CANCELLED, com.sdcart.order.OrderStatus.PAYMENT_FAILED) " +
                         "  AND YEAR(o.createdAt) = :year " +
                         "GROUP BY MONTH(o.createdAt) " +
                         "ORDER BY MONTH(o.createdAt)")

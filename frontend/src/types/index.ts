@@ -9,14 +9,29 @@
 // ---------------------------------------------------------------------------
 
 export type ProductStatus = 'ACTIVE' | 'INACTIVE' | 'DRAFT'
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+export type OrderStatus =
+  | 'PENDING'
+  | 'AWAITING_PAYMENT'
+  | 'CONFIRMED'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'PAYMENT_FAILED'
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
 export type PaymentMethod = 'CARD' | 'PAYPAL' | 'CASH_ON_DELIVERY'
 export type CouponType = 'PERCENTAGE' | 'FIXED'
 export type RoleName = 'ADMIN' | 'USER'
 
 export const PRODUCT_STATUSES: ProductStatus[] = ['ACTIVE', 'INACTIVE', 'DRAFT']
-export const ORDER_STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED']
+export const ORDER_STATUSES: OrderStatus[] = [
+  'PENDING',
+  'AWAITING_PAYMENT',
+  'CONFIRMED',
+  'SHIPPED',
+  'DELIVERED',
+  'CANCELLED',
+  'PAYMENT_FAILED',
+]
 export const PAYMENT_STATUSES: PaymentStatus[] = ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED']
 export const PAYMENT_METHODS: PaymentMethod[] = ['CARD', 'PAYPAL', 'CASH_ON_DELIVERY']
 
@@ -477,10 +492,12 @@ export interface CouponActiveRequest {
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: 'Pending',
+  AWAITING_PAYMENT: 'Awaiting Payment',
   CONFIRMED: 'Confirmed',
   SHIPPED: 'Shipped',
   DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
+  PAYMENT_FAILED: 'Payment Failed',
 }
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {

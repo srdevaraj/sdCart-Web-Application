@@ -30,6 +30,8 @@ import { getErrorMessage } from '@/lib/api-client'
 
 const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PENDING: ['CONFIRMED', 'CANCELLED'],
+  AWAITING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
+  PAYMENT_FAILED: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['SHIPPED', 'CANCELLED'],
   SHIPPED: ['DELIVERED'],
 }

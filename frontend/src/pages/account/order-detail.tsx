@@ -74,9 +74,16 @@ export default function OrderDetailPage() {
   }
 
   const awaitingPayment =
-    order.status === 'PENDING' &&
-    order.payment?.status === 'PENDING' &&
-    order.payment.method !== 'CASH_ON_DELIVERY'
+    (order.status === 'PENDING' ||
+      order.status === 'AWAITING_PAYMENT' ||
+      order.status === 'PAYMENT_FAILED') &&
+    order.payment?.status !== 'COMPLETED' &&
+    order.payment?.method !== 'CASH_ON_DELIVERY'
+
+  const canCancel =
+    order.status === 'PENDING' ||
+    order.status === 'AWAITING_PAYMENT' ||
+    order.status === 'PAYMENT_FAILED'
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-10">
@@ -495,7 +502,7 @@ export default function OrderDetailPage() {
       {/* ================================================================
           CANCEL ORDER
       ================================================================= */}
-      {order.status === 'PENDING' && (
+      {canCancel && (
         <Reveal delay={290}>
           <div className="flex flex-col gap-4 rounded-[24px] border bg-card/60 p-5 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
             <div>

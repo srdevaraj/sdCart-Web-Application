@@ -335,10 +335,12 @@ export default function OrdersPage() {
                           </Link>
                         </Button>
 
-                        {order.status === 'PENDING' && (
+                        {(order.status === 'PENDING' ||
+                          order.status === 'AWAITING_PAYMENT' ||
+                          order.status === 'PAYMENT_FAILED') && (
                           <ConfirmDialog
                             title="Cancel this order?"
-                            description="Cancelling is only possible while the order is pending. Stock will be released."
+                            description="Cancelling will release the reserved stock. This cannot be undone."
                             confirmLabel="Cancel order"
                             destructive
                             onConfirm={async () => {

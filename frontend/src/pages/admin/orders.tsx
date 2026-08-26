@@ -15,6 +15,8 @@ import { ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderStatus } from '@/types'
 /** Valid admin transitions enforced by the backend. */
 const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PENDING: ['CONFIRMED', 'CANCELLED'],
+  AWAITING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
+  PAYMENT_FAILED: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['SHIPPED', 'CANCELLED'],
   SHIPPED: ['DELIVERED'],
 }

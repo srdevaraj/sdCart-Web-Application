@@ -52,10 +52,12 @@ const HAPPY_PATH_STEPS: Array<{
 
 const RANK_MAP: Record<OrderStatus, number> = {
   PENDING: 0,
+  AWAITING_PAYMENT: 0,
   CONFIRMED: 1,
   SHIPPED: 2,
   DELIVERED: 3,
   CANCELLED: -1,
+  PAYMENT_FAILED: -1,
 }
 
 export function OrderStatusStepper({
@@ -66,6 +68,38 @@ export function OrderStatusStepper({
 }: OrderStatusStepperProps) {
   const currentRank = RANK_MAP[status] ?? 0
   const isCancelled = status === 'CANCELLED'
+  const isPaymentFailed = status === 'PAYMENT_FAILED'
+
+  // If payment failed, render a dedicated status banner
+  if (isPaymentFailed) {
+    return (
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-5 shadow-sm sm:p-6',
+          className,
+        )}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+              <AlertOctagon className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-destructive">Payment Failed</h3>
+                <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-destructive">
+                  Action Required
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                The payment attempt for this order was not completed. Please retry payment to confirm your order.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // If order is cancelled, render a dedicated terminal status banner
   if (isCancelled) {
