@@ -39,3 +39,19 @@ export function getInitials(firstName: string, lastName: string): string {
 export function pluralize(count: number, singular: string, plural?: string): string {
   return count === 1 ? singular : (plural ?? `${singular}s`)
 }
+
+/**
+ * Returns the number of whole calendar days elapsed from `dateLeft` to `dateRight`.
+ * Mirrors the date-fns `differenceInCalendarDays(dateRight, dateLeft)` signature
+ * so it can be trivially replaced if the project ever adds date-fns.
+ *
+ * @example
+ *   differenceInCalendarDays(new Date(), new Date('2024-01-01')) // days since Jan 1
+ */
+export function differenceInCalendarDays(laterDate: Date, earlierDate: Date): number {
+  // Strip time component by working in UTC day boundaries.
+  const msPerDay = 86_400_000
+  const later = Date.UTC(laterDate.getFullYear(), laterDate.getMonth(), laterDate.getDate())
+  const earlier = Date.UTC(earlierDate.getFullYear(), earlierDate.getMonth(), earlierDate.getDate())
+  return Math.floor((later - earlier) / msPerDay)
+}

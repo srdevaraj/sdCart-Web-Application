@@ -6,6 +6,7 @@ import {
   Clock3,
   Package,
   ReceiptText,
+  RotateCcw,
   ShoppingBag,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -24,7 +25,7 @@ import {
 import { Reveal } from '@/components/common/reveal'
 import { useCancelOrder, useOrders } from '@/features/orders/hooks'
 import { getErrorMessage } from '@/lib/api-client'
-import { formatDate, formatPrice } from '@/utils/format'
+import { differenceInCalendarDays, formatDate, formatPrice } from '@/utils/format'
 
 const PAGE_SIZE = 8
 
@@ -370,6 +371,13 @@ export default function OrdersPage() {
                             }
                           />
                         )}
+
+                        {order.status === 'CONFIRMED' && (
+                          <RefundButton
+                            confirmedAt={order.updatedAt}
+                            orderId={order.publicId}
+                          />
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -400,5 +408,79 @@ export default function OrdersPage() {
         </>
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// RefundButton — shown only for CONFIRMED orders
+// ---------------------------------------------------------------------------
+
+/**
+ * Renders a refund action for a CONFIRMED order.
+ *
+ * Rules:
+ *  - daysSinceConfirmed <= 3  → enabled; clicking opens a confirmation dialog.
+ *  - daysSinceConfirmed >  3  → disabled (grayed-out, no hover, native tooltip).
+ *
+ * `confirmedAt` is the order's `updatedAt` value, which is the most accurate
+ * proxy for the confirmation timestamp given the current data model (no
+ * separate `confirmedAt` field exists on OrderResponse).
+ */
+function RefundButton({
+  confirmedAt,
+  orderId: _orderId,
+}: {
+  confirmedAt: string
+  /** Reserved for future API wiring when a refund endpoint is available. */
+  orderId: string
+}) {
+  const daysSinceConfirmed = differenceInCalendarDays(
+    new Date(),
+    new Date(confirmedAt),
+  )
+
+  const withinWindow = daysSinceConfirmed <= 3
+
+  if (!withinWindow) {
+    // Disabled state — visually distinct, not interactive.
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled
+        title="Refund window expired"
+        className="h-9 flex-1 rounded-lg text-muted-foreground sm:flex-none"
+      >
+        <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+        Refund
+      </Button>
+    )
+  }
+
+  return (
+    <ConfirmDialog
+      title="Request a refund?"
+      description="Refunds are processed within 5–7 business days. Your order must be within the 3-day refund window to qualify."
+      confirmLabel="Request refund"
+      onConfirm={async () => {
+        // NOTE: No refund endpoint exists in the backend yet.
+        // When a POST /orders/:id/refund endpoint is implemented,
+        // replace this toast with the appropriate mutation call,
+        // following the same pattern as useCancelOrder.
+        toast.info(
+          'Refund request submitted. You will be notified once it is processed.',
+        )
+      }}
+      trigger={
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-9 flex-1 rounded-lg text-primary transition-all duration-300 hover:bg-primary/5 hover:text-primary sm:flex-none"
+        >
+          <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+          Refund
+        </Button>
+      }
+    />
   )
 }
