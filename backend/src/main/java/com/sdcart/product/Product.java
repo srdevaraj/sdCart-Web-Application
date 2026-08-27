@@ -57,13 +57,16 @@ public class Product extends BaseEntity {
     @Column(name = "cost_price", precision = 12, scale = 2)
     private BigDecimal costPrice;
 
+    @Builder.Default
     @Column(name = "stock_quantity", nullable = false)
     private int stockQuantity = 0;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ProductStatus status = ProductStatus.ACTIVE;
 
+    @Builder.Default
     @Column(name = "is_featured", nullable = false)
     private boolean featured = false;
 
@@ -74,6 +77,7 @@ public class Product extends BaseEntity {
     @Builder.Default
     private BigDecimal averageRating = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "review_count", nullable = false)
     private int reviewCount = 0;
 

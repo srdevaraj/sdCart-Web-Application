@@ -23,11 +23,9 @@ import java.util.UUID;
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final CouponUsageRepository couponUsageRepository;
 
-    public CouponService(CouponRepository couponRepository, CouponUsageRepository couponUsageRepository) {
+    public CouponService(CouponRepository couponRepository) {
         this.couponRepository = couponRepository;
-        this.couponUsageRepository = couponUsageRepository;
     }
 
     // ------------------------------------------------------------------

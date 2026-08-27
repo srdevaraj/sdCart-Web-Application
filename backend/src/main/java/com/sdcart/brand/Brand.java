@@ -31,6 +31,7 @@ public class Brand extends BaseEntity {
     @Column(name = "logo_url", length = 500)
     private String logoUrl;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
 }

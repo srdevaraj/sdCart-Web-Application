@@ -116,6 +116,7 @@ public class JwtService {
         return TYPE_REFRESH.equals(claims.get(CLAIM_TYPE, String.class));
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> rolesOf(Claims claims) {
         return claims.get(CLAIM_ROLES, List.class);
     }

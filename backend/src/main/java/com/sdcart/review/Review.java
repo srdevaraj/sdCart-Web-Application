@@ -41,6 +41,7 @@ public class Review extends BaseEntity {
     @Column(columnDefinition = "text")
     private String comment;
 
+    @Builder.Default
     @Column(name = "is_approved", nullable = false)
     private boolean approved = true;
 }

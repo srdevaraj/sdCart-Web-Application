@@ -34,6 +34,7 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal value;
 
+    @Builder.Default
     @Column(name = "min_order_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal minOrderAmount = BigDecimal.ZERO;
 
@@ -41,13 +42,16 @@ public class Coupon extends BaseEntity {
     private BigDecimal maxDiscountAmount;
 
     /** 0 = unlimited */
+    @Builder.Default
     @Column(name = "max_usages", nullable = false)
     private int maxUsages = 0;
 
+    @Builder.Default
     @Column(name = "used_count", nullable = false)
     private int usedCount = 0;
 
     /** 0 = unlimited per user */
+    @Builder.Default
     @Column(name = "per_user_limit", nullable = false)
     private int perUserLimit = 0;
 
@@ -57,6 +61,7 @@ public class Coupon extends BaseEntity {
     @Column(name = "valid_until", nullable = false)
     private Instant validUntil;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
 

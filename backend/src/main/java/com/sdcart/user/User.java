@@ -41,9 +41,11 @@ public class User extends BaseEntity {
     @Column(length = 30)
     private String phone;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean emailVerified = false;
 

@@ -32,6 +32,7 @@ public class ProductSpecification extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String value;
 
+    @Builder.Default
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 }

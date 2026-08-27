@@ -40,9 +40,11 @@ public class ProductImage extends BaseEntity {
     @Column(name = "alt_text", length = 255)
     private String altText;
 
+    @Builder.Default
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 
+    @Builder.Default
     @Column(name = "is_primary", nullable = false)
     private boolean primary = false;
 }

@@ -100,6 +100,7 @@ public class CloudinaryService {
                 validateFile(file);
             }
             for (MultipartFile file : files) {
+                @SuppressWarnings("unchecked")
                 Map<String, Object> result = cloudinary.uploader().upload(
                         file.getBytes(),
                         ObjectUtils.asMap(

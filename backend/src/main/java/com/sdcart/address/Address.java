@@ -27,6 +27,7 @@ public class Address extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder.Default
     @Column(nullable = false, length = 50)
     private String label = "Home";
 
@@ -54,6 +55,7 @@ public class Address extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String country;
 
+    @Builder.Default
     @Column(name = "is_default", nullable = false)
     private boolean defaultAddress = false;
 }
