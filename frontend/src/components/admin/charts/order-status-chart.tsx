@@ -4,13 +4,16 @@ import { useOrderStatusSummary } from '@/features/admin/hooks'
 import type { StatusCount } from '@/types'
 
 // ---------------------------------------------------------------------------
-// 3-bucket grouping
-// PENDING + CONFIRMED + SHIPPED → "In Progress"
+// 4-bucket grouping
+// PENDING + AWAITING_PAYMENT + CONFIRMED + SHIPPED → "Pending" (In Progress)
 // DELIVERED → "Delivered"
-// CANCELLED → "Cancelled"
+// CANCELLED + PAYMENT_FAILED → "Cancelled"
+// REFUND_REQUESTED + REFUNDED → "Product Refund"
 // ---------------------------------------------------------------------------
 
 const IN_PROGRESS_STATUSES = new Set(['PENDING', 'AWAITING_PAYMENT', 'CONFIRMED', 'SHIPPED'])
+const CANCELLED_STATUSES = new Set(['CANCELLED', 'PAYMENT_FAILED'])
+const REFUND_STATUSES = new Set(['REFUND_REQUESTED', 'REFUNDED'])
 
 interface Bucket {
   label: string
@@ -22,17 +25,25 @@ function buildBuckets(data: StatusCount[]): Bucket[] {
   let delivered = 0
   let inProgress = 0
   let cancelled = 0
+  let productRefund = 0
 
   for (const d of data) {
-    if (d.status === 'DELIVERED') delivered += d.count
-    else if (IN_PROGRESS_STATUSES.has(d.status)) inProgress += d.count
-    else if (d.status === 'CANCELLED' || d.status === 'PAYMENT_FAILED') cancelled += d.count
+    if (d.status === 'DELIVERED') {
+      delivered += d.count
+    } else if (REFUND_STATUSES.has(d.status)) {
+      productRefund += d.count
+    } else if (IN_PROGRESS_STATUSES.has(d.status)) {
+      inProgress += d.count
+    } else if (CANCELLED_STATUSES.has(d.status)) {
+      cancelled += d.count
+    }
   }
 
   return [
-    { label: 'Delivered', count: delivered, fill: 'hsl(152, 55%, 38%)' },   // --success
-    { label: 'Pending', count: inProgress, fill: 'hsl(35, 92%, 45%)' },    // --warning
-    { label: 'Cancelled', count: cancelled, fill: 'hsl(0, 72%, 51%)' },     // --destructive
+    { label: 'Delivered', count: delivered, fill: 'hsl(152, 55%, 38%)' },       // --success (teal-green)
+    { label: 'Pending', count: inProgress, fill: 'hsl(35, 92%, 45%)' },        // --warning (amber)
+    { label: 'Cancelled', count: cancelled, fill: 'hsl(0, 72%, 51%)' },         // --destructive (red)
+    { label: 'Product Refund', count: productRefund, fill: 'hsl(262, 80%, 56%)' }, // indigo/purple (matches payment refund & badge)
   ]
 }
 
@@ -66,12 +77,13 @@ function OrderTooltip({
 /**
  * Order status horizontal bar chart.
  * Visually distinct from both the revenue (vertical bars) and payment (donut) charts.
- * Uses the 3-bucket mapping: Delivered / In Progress / Cancelled.
+ * Uses the 4-bucket mapping: Delivered / Pending / Cancelled / Product Refund.
  *
  * Colors:
- *  - Delivered   → --success  (teal-green)
- *  - In Progress → --warning  (amber)
- *  - Cancelled   → --destructive (red)
+ *  - Delivered      → --success      (teal-green)
+ *  - Pending        → --warning      (amber)
+ *  - Cancelled      → --destructive  (red)
+ *  - Product Refund → purple/indigo  (hsl(262, 80%, 56%))
  */
 export function OrderStatusChart() {
   const { data, isPending, isError } = useOrderStatusSummary()
@@ -83,7 +95,7 @@ export function OrderStatusChart() {
   return (
     <ChartCard
       title="Order status"
-      subtitle="All-time, 3-bucket view"
+      subtitle="All-time breakdown"
       isLoading={isPending}
       isEmpty={!isPending && !isError && !hasData}
       emptyMessage="No orders placed yet."
@@ -93,12 +105,12 @@ export function OrderStatusChart() {
       )}
       {hasData && (
         <>
-          <ResponsiveContainer width="100%" height={150}>
+          <ResponsiveContainer width="100%" height={180}>
             <BarChart
               layout="vertical"
               data={buckets}
               margin={{ top: 4, right: 32, left: 4, bottom: 4 }}
-              barSize={22}
+              barSize={20}
             >
               <XAxis
                 type="number"
@@ -113,7 +125,7 @@ export function OrderStatusChart() {
                 tick={{ fontSize: 11, fill: 'hsl(240, 10%, 8%)', fontWeight: 500 }}
                 axisLine={false}
                 tickLine={false}
-                width={70}
+                width={100}
               />
               <Tooltip content={<OrderTooltip />} cursor={{ fill: 'hsl(240,6%,90%,0.4)' }} />
               <Bar dataKey="count" radius={[0, 6, 6, 0]}>

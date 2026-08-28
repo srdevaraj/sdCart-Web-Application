@@ -138,8 +138,8 @@ public class AdminDashboardService {
 
     /**
      * Returns a count+percentage row for every {@link OrderStatus}.
-     * All five statuses (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
-     * are returned; the frontend groups them into the 3-bucket display.
+     * All statuses (including REFUND_REQUESTED, REFUNDED) are returned;
+     * the frontend groups them into the 4-bucket display (Delivered, Pending, Cancelled, Product Refund).
      */
     public List<StatusCountDto> getOrderStatusSummary() {
         List<Object[]> rows = dashboardRepository.orderCountByStatus();
