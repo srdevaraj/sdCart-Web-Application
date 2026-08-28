@@ -18,4 +18,8 @@ export const orderService = {
   async cancel(publicId: string): Promise<OrderResponse> {
     return request<OrderResponse>({ method: 'POST', url: `/orders/${publicId}/cancel` })
   },
+
+  async refund(publicId: string): Promise<OrderResponse> {
+    return request<OrderResponse>({ method: 'POST', url: `/orders/${publicId}/refund` })
+  },
 }

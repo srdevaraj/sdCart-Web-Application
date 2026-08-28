@@ -8,6 +8,7 @@ import {
   CreditCard,
   MapPin,
   Package,
+  RotateCcw,
   ShieldCheck,
   ShoppingBag,
   Truck,
@@ -32,9 +33,10 @@ import {
   useCancelOrder,
   useOrder,
   usePayOrder,
+  useRefundOrder,
 } from '@/features/orders/hooks'
 import { getErrorMessage } from '@/lib/api-client'
-import { formatDateTime, formatPrice } from '@/utils/format'
+import { differenceInCalendarDays, formatDateTime, formatPrice } from '@/utils/format'
 import { PAYMENT_METHOD_LABELS } from '@/types'
 
 export default function OrderDetailPage() {
@@ -43,6 +45,7 @@ export default function OrderDetailPage() {
   const orderQuery = useOrder(publicId)
   const cancelOrder = useCancelOrder()
   const payOrder = usePayOrder()
+  const refundOrder = useRefundOrder()
 
   const order = orderQuery.data
 
@@ -84,6 +87,9 @@ export default function OrderDetailPage() {
     order.status === 'PENDING' ||
     order.status === 'AWAITING_PAYMENT' ||
     order.status === 'PAYMENT_FAILED'
+
+  const daysSinceConfirmed = differenceInCalendarDays(new Date(), new Date(order.updatedAt))
+  const canRefund = order.status === 'CONFIRMED' && daysSinceConfirmed <= 3
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-10">
@@ -547,6 +553,54 @@ export default function OrderDetailPage() {
         </Reveal>
       )}
 
+
+      {/* ================================================================
+          REFUND ORDER
+      ================================================================= */}
+      {canRefund && (
+        <Reveal delay={310}>
+          <div className="flex flex-col gap-4 rounded-[24px] border border-amber-500/20 bg-amber-500/[0.03] p-5 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold">
+                Request a refund?
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                You are within the 3-day refund window. Refunds are
+                credited within 5&ndash;7 business days.
+              </p>
+            </div>
+
+            <ConfirmDialog
+              title="Request a refund?"
+              description="Refunds are processed within 5-7 business days. Your order must be within the 3-day refund window to qualify."
+              confirmLabel={refundOrder.isPending ? 'Submitting...' : 'Request refund'}
+              onConfirm={async () => {
+                await refundOrder.mutateAsync(order.publicId, {
+                  onError: (error) =>
+                    toast.error(
+                      getErrorMessage(
+                        error,
+                        'Could not process refund. Please try again.',
+                      ),
+                    ),
+                })
+
+                toast.success('Refund submitted successfully.')
+              }}
+              trigger={
+                <Button
+                  disabled={refundOrder.isPending}
+                  className="h-10 rounded-xl border border-amber-500/30 bg-amber-500/10 px-5 text-amber-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-500/20 hover:shadow-md dark:text-amber-400"
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  {refundOrder.isPending ? 'Submitting...' : 'Request refund'}
+                </Button>
+              }
+            />
+          </div>
+        </Reveal>
+      )}
       {/* ================================================================
           FOOTER NAVIGATION
       ================================================================= */}

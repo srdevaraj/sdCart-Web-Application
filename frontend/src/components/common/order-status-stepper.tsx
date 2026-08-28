@@ -4,6 +4,7 @@ import {
   Clock,
   Package,
   Receipt,
+  RotateCcw,
   Truck,
 } from 'lucide-react'
 import { type OrderStatus } from '@/types'
@@ -58,6 +59,8 @@ const RANK_MAP: Record<OrderStatus, number> = {
   DELIVERED: 3,
   CANCELLED: -1,
   PAYMENT_FAILED: -1,
+  REFUND_REQUESTED: -1,
+  REFUNDED: -1,
 }
 
 export function OrderStatusStepper({
@@ -99,8 +102,68 @@ export function OrderStatusStepper({
         </div>
       </div>
     )
+  }  // If order refund is requested, render a dedicated amber pending-review banner
+  if (status === 'REFUND_REQUESTED') {
+    return (
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5 shadow-sm sm:p-6',
+          className,
+        )}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+              <RotateCcw className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-amber-700 dark:text-amber-400">Refund Requested</h3>
+                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                  Pending Review
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Your refund request submitted on {formatDateTime(updatedAt)} is currently under review by our admin team.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
+
+  // If order is refunded, render a dedicated amber terminal status banner
+  if (status === 'REFUNDED') {
+    return (
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5 shadow-sm sm:p-6',
+          className,
+        )}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+              <RotateCcw className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-amber-700 dark:text-amber-400">Product Refunded</h3>
+                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                  Refund Processed
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                A refund was submitted on {formatDateTime(updatedAt)}. Funds will be credited within 5–7 business days.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   // If order is cancelled, render a dedicated terminal status banner
   if (isCancelled) {
     return (

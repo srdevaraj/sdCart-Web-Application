@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
@@ -7,10 +8,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { OrderStatusBadge } from '@/components/common/status-badge'
+import { RefundReviewModal } from '@/components/admin/refund-review-modal'
 import { useAdminOrders, useUpdateOrderStatus } from '@/features/admin/hooks'
 import { getErrorMessage } from '@/lib/api-client'
 import { formatDate, formatPrice } from '@/utils/format'
-import { ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderStatus } from '@/types'
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderResponse, type OrderStatus } from '@/types'
 
 /** Valid admin transitions enforced by the backend. */
 const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
@@ -19,11 +21,14 @@ const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PAYMENT_FAILED: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['SHIPPED', 'CANCELLED'],
   SHIPPED: ['DELIVERED'],
+  REFUND_REQUESTED: ['CANCELLED'],
 }
 
 export default function AdminOrdersPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [page, setPage] = useState(0)
+  const [selectedRefundOrder, setSelectedRefundOrder] = useState<OrderResponse | null>(null)
+
   const statusParam = searchParams.get('status')
   const status = (ORDER_STATUSES.includes(statusParam as OrderStatus) ? statusParam : undefined) as
     | OrderStatus
@@ -53,7 +58,7 @@ export default function AdminOrdersPage() {
             variant={status === s ? 'default' : 'outline'}
             size="sm"
             onClick={() => {
-              setSearchParams(s === 'PENDING' ? { status: s } : { status: s })
+              setSearchParams({ status: s })
               setPage(0)
             }}
           >
@@ -89,6 +94,7 @@ export default function AdminOrdersPage() {
               <tbody className="divide-y">
                 {orders.content.map((order) => {
                   const next = NEXT_STATUSES[order.status] ?? []
+                  const isRefundRequested = order.status === 'REFUND_REQUESTED'
                   return (
                     <tr key={order.publicId} className="transition-colors hover:bg-muted/30">
                       <td className="whitespace-nowrap px-4 py-3.5 align-middle">
@@ -115,6 +121,27 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="whitespace-nowrap px-4 py-3.5 text-right align-middle">
                         <div className="flex items-center justify-end gap-1.5">
+                          {isRefundRequested && (
+                            <Button
+                              size="sm"
+                              className="h-8 rounded-lg bg-amber-600 px-3 text-xs font-semibold text-white shadow-sm transition-all hover:bg-amber-700"
+                              onClick={() => setSelectedRefundOrder(order)}
+                            >
+                              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                              Refund
+                            </Button>
+                          )}
+                          {order.status === 'CONFIRMED' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 rounded-lg text-xs"
+                              onClick={() => setSelectedRefundOrder(order)}
+                            >
+                              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                              Refund
+                            </Button>
+                          )}
                           {next.map((target) => (
                             <Button
                               key={target}
@@ -135,7 +162,7 @@ export default function AdminOrdersPage() {
                               {ORDER_STATUS_LABELS[target]}
                             </Button>
                           ))}
-                          {next.length === 0 && <span className="text-xs text-muted-foreground">â€”</span>}
+                          {next.length === 0 && !isRefundRequested && <span className="text-xs text-muted-foreground">—</span>}
                         </div>
                       </td>
                     </tr>
@@ -154,6 +181,15 @@ export default function AdminOrdersPage() {
           />
         </>
       )}
+
+      {/* Review Refund Modal */}
+      <RefundReviewModal
+        order={selectedRefundOrder}
+        open={!!selectedRefundOrder}
+        onOpenChange={(open) => {
+          if (!open) setSelectedRefundOrder(null)
+        }}
+      />
     </div>
   )
 }

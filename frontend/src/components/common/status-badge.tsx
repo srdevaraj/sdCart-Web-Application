@@ -16,6 +16,8 @@ const ORDER_STATUS_VARIANT: Record<OrderStatus, 'default' | 'secondary' | 'succe
   DELIVERED: 'success',
   CANCELLED: 'destructive',
   PAYMENT_FAILED: 'destructive',
+  REFUND_REQUESTED: 'warning',
+  REFUNDED: 'secondary',
 }
 
 const PAYMENT_STATUS_VARIANT: Record<

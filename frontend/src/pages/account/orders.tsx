@@ -23,7 +23,7 @@ import {
   PaymentStatusBadge,
 } from '@/components/common/status-badge'
 import { Reveal } from '@/components/common/reveal'
-import { useCancelOrder, useOrders } from '@/features/orders/hooks'
+import { useCancelOrder, useOrders, useRefundOrder } from '@/features/orders/hooks'
 import { getErrorMessage } from '@/lib/api-client'
 import { differenceInCalendarDays, formatDate, formatPrice } from '@/utils/format'
 
@@ -34,6 +34,7 @@ export default function OrdersPage() {
 
   const ordersQuery = useOrders(page, PAGE_SIZE)
   const cancelOrder = useCancelOrder()
+  const refundOrder = useRefundOrder()
 
   if (ordersQuery.isPending) {
     return (
@@ -376,6 +377,7 @@ export default function OrdersPage() {
                           <RefundButton
                             confirmedAt={order.updatedAt}
                             orderId={order.publicId}
+                            refundOrder={refundOrder}
                           />
                         )}
                       </div>
@@ -412,15 +414,15 @@ export default function OrdersPage() {
 }
 
 // ---------------------------------------------------------------------------
-// RefundButton — shown only for CONFIRMED orders
+// RefundButton -- shown only for CONFIRMED orders
 // ---------------------------------------------------------------------------
 
 /**
  * Renders a refund action for a CONFIRMED order.
  *
  * Rules:
- *  - daysSinceConfirmed <= 3  → enabled; clicking opens a confirmation dialog.
- *  - daysSinceConfirmed >  3  → disabled (grayed-out, no hover, native tooltip).
+ *  - daysSinceConfirmed <= 3  -> enabled; clicking opens a confirmation dialog.
+ *  - daysSinceConfirmed >  3  -> disabled (grayed-out, no hover, native tooltip).
  *
  * `confirmedAt` is the order's `updatedAt` value, which is the most accurate
  * proxy for the confirmation timestamp given the current data model (no
@@ -428,11 +430,12 @@ export default function OrdersPage() {
  */
 function RefundButton({
   confirmedAt,
-  orderId: _orderId,
+  orderId,
+  refundOrder,
 }: {
   confirmedAt: string
-  /** Reserved for future API wiring when a refund endpoint is available. */
   orderId: string
+  refundOrder: ReturnType<typeof useRefundOrder>
 }) {
   const daysSinceConfirmed = differenceInCalendarDays(
     new Date(),
@@ -442,7 +445,7 @@ function RefundButton({
   const withinWindow = daysSinceConfirmed <= 3
 
   if (!withinWindow) {
-    // Disabled state — visually distinct, not interactive.
+    // Disabled state -- visually distinct, not interactive.
     return (
       <Button
         variant="ghost"
@@ -460,21 +463,22 @@ function RefundButton({
   return (
     <ConfirmDialog
       title="Request a refund?"
-      description="Refunds are processed within 5–7 business days. Your order must be within the 3-day refund window to qualify."
-      confirmLabel="Request refund"
+      description="Refunds are processed within 5-7 business days. Your order must be within the 3-day refund window to qualify."
+      confirmLabel={refundOrder.isPending ? 'Submitting...' : 'Request refund'}
       onConfirm={async () => {
-        // NOTE: No refund endpoint exists in the backend yet.
-        // When a POST /orders/:id/refund endpoint is implemented,
-        // replace this toast with the appropriate mutation call,
-        // following the same pattern as useCancelOrder.
-        toast.info(
-          'Refund request submitted. You will be notified once it is processed.',
-        )
+        await refundOrder.mutateAsync(orderId, {
+          onError: (error) =>
+            toast.error(
+              getErrorMessage(error, 'Could not process refund. Please try again.'),
+            ),
+        })
+        toast.success('Refund submitted successfully.')
       }}
       trigger={
         <Button
           variant="ghost"
           size="sm"
+          disabled={refundOrder.isPending}
           className="h-9 flex-1 rounded-lg text-primary transition-all duration-300 hover:bg-primary/5 hover:text-primary sm:flex-none"
         >
           <RotateCcw className="mr-1.5 h-3.5 w-3.5" />

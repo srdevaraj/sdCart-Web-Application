@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,5 +49,11 @@ public class AdminOrderController {
                                                                    @Valid @RequestBody OrderStatusUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.ok("Order status updated",
                 orderService.updateStatus(publicId, request.status())));
+    }
+
+    @PostMapping("/{publicId}/refund/process")
+    public ResponseEntity<ApiResponse<OrderResponse>> processRefund(@PathVariable UUID publicId) {
+        return ResponseEntity.ok(ApiResponse.ok("Refund processed successfully",
+                orderService.processRefundAdmin(publicId)));
     }
 }

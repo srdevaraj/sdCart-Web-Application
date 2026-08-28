@@ -52,4 +52,10 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok("Order cancelled",
                 orderService.cancelOrder(SecurityUtils.currentUserId(), publicId)));
     }
+
+    @PostMapping("/{publicId}/refund")
+    public ResponseEntity<ApiResponse<OrderResponse>> refundOrder(@PathVariable UUID publicId) {
+        return ResponseEntity.ok(ApiResponse.ok("Refund submitted",
+                orderService.refundOrder(SecurityUtils.currentUserId(), publicId)));
+    }
 }

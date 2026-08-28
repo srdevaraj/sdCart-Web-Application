@@ -51,7 +51,7 @@ public class OrderService {
             OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.AWAITING_PAYMENT, OrderStatus.PAYMENT_FAILED, OrderStatus.CANCELLED),
             OrderStatus.AWAITING_PAYMENT, Set.of(OrderStatus.CONFIRMED, OrderStatus.PAYMENT_FAILED, OrderStatus.CANCELLED),
             OrderStatus.PAYMENT_FAILED, Set.of(OrderStatus.CONFIRMED, OrderStatus.AWAITING_PAYMENT, OrderStatus.CANCELLED),
-            OrderStatus.CONFIRMED, Set.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
+            OrderStatus.CONFIRMED, Set.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED, OrderStatus.REFUNDED),
             OrderStatus.SHIPPED, Set.of(OrderStatus.DELIVERED),
             OrderStatus.DELIVERED, Set.of(),
             OrderStatus.CANCELLED, Set.of());
@@ -229,6 +229,35 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", publicId));
         return OrderResponse.from(order, paymentOf(order));
     }
+    @Transactional
+    public OrderResponse refundOrder(Long userId, UUID publicId) {
+        Order order = orderRepository.findByPublicIdAndUserId(publicId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", publicId));
+        if (order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Only confirmed orders are eligible for a refund");
+        }
+        order.setStatus(OrderStatus.REFUND_REQUESTED);
+        log.info("Order {} refund requested by user id={}", order.getOrderNumber(), userId);
+        return OrderResponse.from(order, paymentOf(order));
+    }
+
+    @Transactional
+    public OrderResponse processRefundAdmin(UUID publicId) {
+        Order order = orderRepository.findByPublicId(publicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", publicId));
+        if (order.getStatus() != OrderStatus.REFUND_REQUESTED && order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Order is not in a refundable state");
+        }
+        order.setStatus(OrderStatus.REFUNDED);
+        restoreStock(order);
+        paymentRepository.findByOrderId(order.getId()).ifPresent(payment -> {
+            payment.setStatus(PaymentStatus.REFUNDED);
+            paymentRepository.save(payment);
+        });
+        log.info("Order {} refund processed by admin", order.getOrderNumber());
+        return OrderResponse.from(order, paymentOf(order));
+    }
+
 
     @Transactional
     public OrderResponse cancelOrder(Long userId, UUID publicId) {

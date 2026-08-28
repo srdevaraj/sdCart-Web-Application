@@ -1,9 +1,11 @@
 import { Link, useParams } from 'react-router-dom'
+import { useState } from 'react'
 import {
   ArrowLeft,
   Clock3,
   MapPin,
   Package,
+  RotateCcw,
   ShieldCheck,
   ShoppingBag,
   Truck,
@@ -19,6 +21,7 @@ import {
   PaymentStatusBadge,
 } from '@/components/common/status-badge'
 import { OrderStatusStepper } from '@/components/common/order-status-stepper'
+import { RefundReviewModal } from '@/components/admin/refund-review-modal'
 import { ProductImage } from '@/components/common/product-image'
 import { Spinner } from '@/components/common/loading-state'
 import { Reveal } from '@/components/common/reveal'
@@ -34,12 +37,14 @@ const NEXT_STATUSES: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PAYMENT_FAILED: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['SHIPPED', 'CANCELLED'],
   SHIPPED: ['DELIVERED'],
+  REFUND_REQUESTED: ['CANCELLED'],
 }
 
 export default function AdminOrderDetailPage() {
   const { publicId } = useParams<{ publicId: string }>()
   const orderQuery = useAdminOrder(publicId)
   const updateStatus = useUpdateOrderStatus()
+  const [showRefundModal, setShowRefundModal] = useState(false)
 
   const order = orderQuery.data
 
@@ -113,8 +118,19 @@ export default function AdminOrderDetailPage() {
             </div>
 
             {/* Status actions */}
-            {next.length > 0 && (
+            {(next.length > 0 || order.status === 'REFUND_REQUESTED' || order.status === 'CONFIRMED') && (
               <div className="mt-6 flex flex-wrap gap-2 border-t pt-5">
+                {(order.status === 'REFUND_REQUESTED' || order.status === 'CONFIRMED') && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={() => setShowRefundModal(true)}
+                  >
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                    Review & Process Refund
+                  </Button>
+                )}
                 {next.map((target) => (
                   <Button
                     key={target}
@@ -314,6 +330,12 @@ export default function AdminOrderDetailPage() {
           </Link>
         </div>
       </Reveal>
+      {/* Review Refund Modal */}
+      <RefundReviewModal
+        order={order}
+        open={showRefundModal}
+        onOpenChange={setShowRefundModal}
+      />
     </div>
   )
 }

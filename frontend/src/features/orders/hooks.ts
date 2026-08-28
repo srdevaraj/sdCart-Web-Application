@@ -51,6 +51,19 @@ export function useCancelOrder() {
   })
 }
 
+export function useRefundOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (publicId: string) => orderService.refund(publicId),
+    onSuccess: (order) => {
+      // Immediately update the cached detail so the tracking page re-renders.
+      queryClient.setQueryData(orderKeys.detail(order.publicId), order)
+      // Invalidate the list so the orders page badge refreshes without a manual reload.
+      queryClient.invalidateQueries({ queryKey: orderKeys.all })
+    },
+  })
+}
+
 export function usePayOrder() {
   const queryClient = useQueryClient()
   return useMutation({

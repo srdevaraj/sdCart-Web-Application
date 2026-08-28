@@ -17,6 +17,8 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED'
   | 'PAYMENT_FAILED'
+  | 'REFUND_REQUESTED'
+  | 'REFUNDED'
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
 export type PaymentMethod = 'CARD' | 'PAYPAL' | 'CASH_ON_DELIVERY'
 export type CouponType = 'PERCENTAGE' | 'FIXED'
@@ -31,6 +33,8 @@ export const ORDER_STATUSES: OrderStatus[] = [
   'DELIVERED',
   'CANCELLED',
   'PAYMENT_FAILED',
+  'REFUND_REQUESTED',
+  'REFUNDED',
 ]
 export const PAYMENT_STATUSES: PaymentStatus[] = ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED']
 export const PAYMENT_METHODS: PaymentMethod[] = ['CARD', 'PAYPAL', 'CASH_ON_DELIVERY']
@@ -498,6 +502,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
   PAYMENT_FAILED: 'Payment Failed',
+  REFUND_REQUESTED: 'Refund Requested',
+  REFUNDED: 'Product Refunded',
 }
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {

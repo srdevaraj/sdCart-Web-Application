@@ -233,6 +233,17 @@ export function useUpdateOrderStatus() {
       adminService.updateOrderStatus(publicId, status),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.orders }),
   })
+export function useProcessRefund() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (publicId: string) => adminService.processRefund(publicId),
+    onSuccess: (order) => {
+      queryClient.setQueryData([...adminKeys.orders, 'detail', order.publicId], order)
+      queryClient.invalidateQueries({ queryKey: adminKeys.orders })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+    },
+  })
+}
 }
 
 export function useCreateCoupon() {
