@@ -162,7 +162,7 @@ export default function AdminOrdersPage() {
                               {ORDER_STATUS_LABELS[target]}
                             </Button>
                           ))}
-                          {next.length === 0 && !isRefundRequested && <span className="text-xs text-muted-foreground">—</span>}
+                          {next.length === 0 && !isRefundRequested && <span className="text-xs text-muted-foreground">â€”</span>}
                         </div>
                       </td>
                     </tr>

@@ -96,13 +96,13 @@ export function RefundReviewModal({
                       className="h-full w-full object-cover"
                     />
                     <span className="absolute bottom-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-background/90 px-1 text-[9px] font-bold shadow-sm">
-                      ×{item.quantity}
+                      Ã—{item.quantity}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{item.productName}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {formatPrice(item.unitPrice)} × {item.quantity}
+                      {formatPrice(item.unitPrice)} Ã— {item.quantity}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">

@@ -163,6 +163,13 @@ export const adminService = {
     })
   },
 
+  async processRefund(publicId: string): Promise<OrderResponse> {
+    return request<OrderResponse>({
+      method: 'POST',
+      url: `/admin/orders/${publicId}/refund/process`,
+    })
+  },
+
   // -------------------------------------------------------------------------
   // Images
   // -------------------------------------------------------------------------

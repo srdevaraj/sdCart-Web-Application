@@ -233,6 +233,8 @@ export function useUpdateOrderStatus() {
       adminService.updateOrderStatus(publicId, status),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.orders }),
   })
+}
+
 export function useProcessRefund() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -243,7 +245,6 @@ export function useProcessRefund() {
       queryClient.invalidateQueries({ queryKey: ['orders'] })
     },
   })
-}
 }
 
 export function useCreateCoupon() {
@@ -314,4 +315,3 @@ export function useOrderStatusSummary() {
     staleTime: 5 * 60 * 1000,
   })
 }
-

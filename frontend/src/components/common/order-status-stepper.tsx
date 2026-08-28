@@ -156,7 +156,7 @@ export function OrderStatusStepper({
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                A refund was submitted on {formatDateTime(updatedAt)}. Funds will be credited within 5–7 business days.
+                A refund was submitted on {formatDateTime(updatedAt)}. Funds will be credited within 5â€“7 business days.
               </p>
             </div>
           </div>
