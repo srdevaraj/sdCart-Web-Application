@@ -75,7 +75,7 @@ const VALUE_PROPS = [
 
 const SOCIAL_LINKS = [
   { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61593368008739' },
-  { icon: Instagram, label: 'Instagram', href: '#' },
+  { icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/sdcartonlineshopping?igsi=MTdwOWFmaWF2M3gxNQ==' },
   { icon: Twitter, label: 'Twitter', href: '#' },
   { icon: Linkedin, label: 'LinkedIn', href: '#' },
   { icon: Youtube, label: 'YouTube', href: '#' },
