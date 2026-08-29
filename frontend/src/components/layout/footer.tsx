@@ -74,7 +74,7 @@ const VALUE_PROPS = [
 ]
 
 const SOCIAL_LINKS = [
-  { icon: Facebook, label: 'Facebook', href: '#' },
+  { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61593368008739' },
   { icon: Instagram, label: 'Instagram', href: '#' },
   { icon: Twitter, label: 'Twitter', href: '#' },
   { icon: Linkedin, label: 'LinkedIn', href: '#' },
@@ -227,19 +227,24 @@ export function Footer() {
             <div className="pt-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Connect With Us</p>
               <div className="flex flex-wrap gap-2.5">
-                {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
-                  <MagneticHover key={label} strength={0.3}>
-                    <a
-                      href={href}
-                      onClick={(e) => e.preventDefault()}
-                      aria-label={label}
-                      className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-400 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-primary/60 hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-1"
-                      style={{ transformStyle: 'preserve-3d' }}
-                    >
-                      <Icon className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" aria-hidden />
-                    </a>
-                  </MagneticHover>
-                ))}
+                {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => {
+                  const isExternal = href && href !== '#'
+                  return (
+                    <MagneticHover key={label} strength={0.3}>
+                      <a
+                        href={href}
+                        {...(isExternal
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : { onClick: (e: React.MouseEvent) => e.preventDefault() })}
+                        aria-label={label}
+                        className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 text-slate-400 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-primary/60 hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-1"
+                        style={{ transformStyle: 'preserve-3d' }}
+                      >
+                        <Icon className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" aria-hidden />
+                      </a>
+                    </MagneticHover>
+                  )
+                })}
               </div>
             </div>
           </div>
