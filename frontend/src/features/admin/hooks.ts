@@ -5,10 +5,13 @@ import type {
   BrandRequest,
   CategoryRequest,
   CouponRequest,
+  CreateDeliveryPersonRequest,
   OrderStatus,
   ProductCreateRequest,
   ProductStatus,
   ProductUpdateRequest,
+  UpdateDeliveryPersonRequest,
+  UserRoleUpdateRequest,
 } from '@/types'
 
 export const adminKeys = {
@@ -20,6 +23,7 @@ export const adminKeys = {
   orders: ['admin', 'orders'] as const,
   payments: ['admin', 'payments'] as const,
   coupons: ['admin', 'coupons'] as const,
+  deliveryPersons: ['admin', 'delivery-persons'] as const,
 }
 
 // ---------------------------------------------------------------------------
@@ -77,6 +81,14 @@ export function useAdminCoupons(page = 0, size = 20) {
   return useQuery({
     queryKey: [...adminKeys.coupons, { page, size }],
     queryFn: () => adminService.listCoupons(page, size),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useAdminDeliveryPersons(suspended?: boolean, page = 0, size = 20) {
+  return useQuery({
+    queryKey: [...adminKeys.deliveryPersons, { suspended, page, size }],
+    queryFn: () => adminService.listDeliveryPersons(suspended, page, size),
     placeholderData: (prev) => prev,
   })
 }
@@ -222,7 +234,58 @@ export function useSetUserActive() {
   return useMutation({
     mutationFn: ({ publicId, active }: { publicId: string; active: boolean }) =>
       adminService.setUserActive(publicId, active),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminKeys.users }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.users })
+      queryClient.invalidateQueries({ queryKey: adminKeys.deliveryPersons })
+    },
+  })
+}
+
+export function useUpdateUserRole() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ publicId, payload }: { publicId: string; payload: UserRoleUpdateRequest }) =>
+      adminService.updateUserRole(publicId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.users })
+      queryClient.invalidateQueries({ queryKey: adminKeys.deliveryPersons })
+    },
+  })
+}
+
+export function useCreateDeliveryPerson() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateDeliveryPersonRequest) =>
+      adminService.createDeliveryPerson(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.deliveryPersons })
+      queryClient.invalidateQueries({ queryKey: adminKeys.users })
+    },
+  })
+}
+
+export function useUpdateDeliveryPerson() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ publicId, payload }: { publicId: string; payload: UpdateDeliveryPersonRequest }) =>
+      adminService.updateDeliveryPerson(publicId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.deliveryPersons })
+      queryClient.invalidateQueries({ queryKey: adminKeys.users })
+    },
+  })
+}
+
+export function useAssignDelivery() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ orderPublicId, deliveryPersonPublicId }: { orderPublicId: string; deliveryPersonPublicId: string }) =>
+      adminService.assignDelivery(orderPublicId, deliveryPersonPublicId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.orders })
+      queryClient.invalidateQueries({ queryKey: adminKeys.deliveryPersons })
+    },
   })
 }
 

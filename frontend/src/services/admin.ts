@@ -8,6 +8,8 @@ import type {
   CouponActiveRequest,
   CouponRequest,
   CouponResponse,
+  CreateDeliveryPersonRequest,
+  DeliveryPersonResponse,
   OrderResponse,
   OrderStatus,
   OrderStatusUpdateRequest,
@@ -17,7 +19,9 @@ import type {
   ProductStatus,
   ProductStatusRequest,
   ProductUpdateRequest,
+  UpdateDeliveryPersonRequest,
   UserResponse,
+  UserRoleUpdateRequest,
   UserStatusRequest,
 } from '@/types'
 
@@ -137,6 +141,49 @@ export const adminService = {
       method: 'PATCH',
       url: `/admin/users/${publicId}/status`,
       data: { active } satisfies UserStatusRequest,
+    })
+  },
+
+  async updateUserRole(publicId: string, payload: UserRoleUpdateRequest): Promise<UserResponse> {
+    return request<UserResponse>({
+      method: 'PATCH',
+      url: `/admin/users/${publicId}/role`,
+      data: payload,
+    })
+  },
+
+  // -------------------------------------------------------------------------
+  // Delivery Persons
+  // -------------------------------------------------------------------------
+  async listDeliveryPersons(suspended?: boolean, page = 0, size = 20): Promise<PageResponse<DeliveryPersonResponse>> {
+    return request<PageResponse<DeliveryPersonResponse>>({
+      method: 'GET',
+      url: '/admin/delivery-persons',
+      params: { suspended, page, size },
+    })
+  },
+
+  async createDeliveryPerson(payload: CreateDeliveryPersonRequest): Promise<DeliveryPersonResponse> {
+    return request<DeliveryPersonResponse>({
+      method: 'POST',
+      url: '/admin/delivery-persons',
+      data: payload,
+    })
+  },
+
+  async updateDeliveryPerson(publicId: string, payload: UpdateDeliveryPersonRequest): Promise<DeliveryPersonResponse> {
+    return request<DeliveryPersonResponse>({
+      method: 'PATCH',
+      url: `/admin/delivery-persons/${publicId}`,
+      data: payload,
+    })
+  },
+
+  async assignDelivery(orderPublicId: string, deliveryPersonPublicId: string): Promise<OrderResponse> {
+    return request<OrderResponse>({
+      method: 'POST',
+      url: `/admin/orders/${orderPublicId}/assign`,
+      data: { deliveryPersonPublicId },
     })
   },
 

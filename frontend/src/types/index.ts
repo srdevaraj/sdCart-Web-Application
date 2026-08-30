@@ -103,6 +103,16 @@ export interface ChangePasswordRequest {
   newPassword: string
 }
 
+export interface UserStatusRequest {
+  active: boolean
+}
+
+export interface UserRoleUpdateRequest {
+  role: RoleName
+  vehicleType?: string
+  serviceZone?: string
+}
+
 // ---------------------------------------------------------------------------
 // Catalog
 // ---------------------------------------------------------------------------
@@ -358,6 +368,13 @@ export interface PaymentSummaryResponse {
   amount: string
 }
 
+export interface OrderDeliveryPersonSummary {
+  publicId: string
+  firstName: string
+  lastName: string
+  phone: string | null
+}
+
 export interface OrderResponse {
   publicId: string
   orderNumber: string
@@ -373,6 +390,56 @@ export interface OrderResponse {
   payment: PaymentSummaryResponse | null
   createdAt: string
   updatedAt: string
+  deliveryStatus?: DeliveryStatus
+  assignedAt?: string | null
+  deliveredAt?: string | null
+  deliveryPerson?: OrderDeliveryPersonSummary | null
+}
+
+// ---------------------------------------------------------------------------
+// Delivery Person
+// ---------------------------------------------------------------------------
+
+export interface DeliveryPersonResponse {
+  publicId: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string | null
+  vehicleType: string | null
+  serviceZone: string | null
+  available: boolean
+  suspended: boolean
+  activeOrderCount: number
+  createdAt: string
+}
+
+export interface CreateDeliveryPersonRequest {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  phone?: string
+  vehicleType?: string
+  serviceZone?: string
+}
+
+export interface UpdateDeliveryPersonRequest {
+  vehicleType?: string
+  serviceZone?: string
+  suspended?: boolean
+}
+
+export interface AssignDeliveryRequest {
+  deliveryPersonPublicId: string
+}
+
+export interface DeliveryStatusUpdateRequest {
+  status: DeliveryStatus
+}
+
+export interface ConfirmDeliveryRequest {
+  otp: string
 }
 
 export interface CreateOrderRequest {

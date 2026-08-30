@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))
             """)
     Page<User> search(@Param("query") String query, Pageable pageable);
+
+    @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    long countByRoleName(@Param("roleName") RoleName roleName);
 }

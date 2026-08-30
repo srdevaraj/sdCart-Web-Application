@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Tags,
   TicketPercent,
+  Truck,
   Users,
   Warehouse,
 } from 'lucide-react'
@@ -26,6 +27,7 @@ const NAV = [
   { label: 'Categories', to: '/admin/categories', icon: Boxes },
   { label: 'Brands', to: '/admin/brands', icon: Tags },
   { label: 'Orders', to: '/admin/orders', icon: ShoppingCart },
+  { label: 'Delivery Persons', to: '/admin/delivery-persons', icon: Truck },
   { label: 'Payments', to: '/admin/payments', icon: CreditCard },
   { label: 'Coupons', to: '/admin/coupons', icon: TicketPercent },
   { label: 'Users', to: '/admin/users', icon: Users },

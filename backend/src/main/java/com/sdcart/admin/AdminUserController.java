@@ -43,4 +43,13 @@ public class AdminUserController {
         return ResponseEntity.ok(ApiResponse.ok("User status updated",
                 userService.setActive(publicId, request.active())));
     }
+
+    @PatchMapping("/{publicId}/role")
+    public ResponseEntity<ApiResponse<UserResponse>> updateRole(
+            @PathVariable UUID publicId,
+            @Valid @RequestBody com.sdcart.admin.dto.UserRoleUpdateRequest request) {
+        Long currentAdminId = com.sdcart.security.SecurityUtils.currentUserId();
+        return ResponseEntity.ok(ApiResponse.ok("User role updated successfully",
+                userService.updateRole(publicId, request, currentAdminId)));
+    }
 }
