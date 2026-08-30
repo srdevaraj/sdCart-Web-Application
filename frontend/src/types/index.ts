@@ -22,7 +22,13 @@ export type OrderStatus =
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
 export type PaymentMethod = 'CARD' | 'PAYPAL' | 'CASH_ON_DELIVERY'
 export type CouponType = 'PERCENTAGE' | 'FIXED'
-export type RoleName = 'ADMIN' | 'USER'
+export type RoleName = 'ADMIN' | 'USER' | 'DELIVERY_PERSON'
+export type DeliveryStatus =
+  | 'UNASSIGNED'
+  | 'ASSIGNED'
+  | 'PICKED_UP'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
 
 export const PRODUCT_STATUSES: ProductStatus[] = ['ACTIVE', 'INACTIVE', 'DRAFT']
 export const ORDER_STATUSES: OrderStatus[] = [

@@ -125,6 +125,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // Admin
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        // Delivery persons
+                        .requestMatchers("/api/v1/delivery/**").hasRole("DELIVERY_PERSON")
                         // Everything else requires authentication
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

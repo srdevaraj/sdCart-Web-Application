@@ -6,7 +6,8 @@ package com.sdcart.user;
  */
 public enum RoleName {
     ADMIN,
-    USER;
+    USER,
+    DELIVERY_PERSON;
 
     public String authority() {
         return "ROLE_" + name();

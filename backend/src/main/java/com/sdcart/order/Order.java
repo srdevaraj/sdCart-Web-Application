@@ -2,6 +2,7 @@ package com.sdcart.order;
 
 import com.sdcart.common.BaseEntity;
 import com.sdcart.coupon.Coupon;
+import com.sdcart.delivery.DeliveryStatus;
 import com.sdcart.payment.Payment;
 import com.sdcart.user.User;
 import jakarta.persistence.CascadeType;
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,4 +114,31 @@ public class Order extends BaseEntity {
      */
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Payment payment;
+
+    // -------------------------------------------------------------------------
+    // Delivery tracking fields (added in V9 migration)
+    // -------------------------------------------------------------------------
+
+    /** The User (with DELIVERY_PERSON role) currently assigned to deliver this order. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_person_id")
+    private User deliveryPerson;
+
+    @Column(name = "assigned_at")
+    private Instant assignedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status", nullable = false, length = 30)
+    @Builder.Default
+    private DeliveryStatus deliveryStatus = DeliveryStatus.UNASSIGNED;
+
+    @Column(name = "delivered_at")
+    private Instant deliveredAt;
+
+    /** SHA-256 hash of the 6-digit OTP sent to the customer for delivery confirmation. */
+    @Column(name = "delivery_otp_hash", length = 64)
+    private String deliveryOtpHash;
+
+    @Column(name = "delivery_otp_expires_at")
+    private Instant deliveryOtpExpiresAt;
 }

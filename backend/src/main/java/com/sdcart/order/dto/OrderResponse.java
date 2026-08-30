@@ -1,5 +1,6 @@
 package com.sdcart.order.dto;
 
+import com.sdcart.delivery.DeliveryStatus;
 import com.sdcart.order.Order;
 import com.sdcart.order.OrderStatus;
 import com.sdcart.payment.dto.PaymentSummaryResponse;
@@ -23,9 +24,21 @@ public record OrderResponse(
         ShippingAddressResponse shippingAddress,
         PaymentSummaryResponse payment,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        // Delivery tracking fields
+        DeliveryStatus deliveryStatus,
+        Instant assignedAt,
+        Instant deliveredAt,
+        DeliveryPersonSummary deliveryPerson) {
+
+    public record DeliveryPersonSummary(UUID publicId, String firstName, String lastName, String phone) {}
 
     public static OrderResponse from(Order order, PaymentSummaryResponse payment) {
+        DeliveryPersonSummary dpSummary = null;
+        if (order.getDeliveryPerson() != null) {
+            var dp = order.getDeliveryPerson();
+            dpSummary = new DeliveryPersonSummary(dp.getPublicId(), dp.getFirstName(), dp.getLastName(), dp.getPhone());
+        }
         return new OrderResponse(
                 order.getPublicId(),
                 order.getOrderNumber(),
@@ -40,6 +53,10 @@ public record OrderResponse(
                 ShippingAddressResponse.from(order),
                 payment,
                 order.getCreatedAt(),
-                order.getUpdatedAt());
+                order.getUpdatedAt(),
+                order.getDeliveryStatus(),
+                order.getAssignedAt(),
+                order.getDeliveredAt(),
+                dpSummary);
     }
 }
